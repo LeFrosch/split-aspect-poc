@@ -3,9 +3,10 @@ load(":common.bzl", "intellij_common")
 
 def _aspect_impl(target, ctx):
     if not CcInfo in target:
-        return []
+        return [intellij_common.IntelliJCcInfo(present = False)]
 
     return [intellij_common.IntelliJCcInfo(
+        present = True,
         outputs = {},
         value = "CcInfo found on target",
     )]
@@ -13,8 +14,6 @@ def _aspect_impl(target, ctx):
 intellij_cc_info_aspect = aspect(
     implementation = _aspect_impl,
     attr_aspects = ["*"],
-    required_providers = [CcInfo],
-    required_aspect_providers = [CcInfo],
     fragments = ["cpp"],
     provides = [intellij_common.IntelliJCcInfo],
 )

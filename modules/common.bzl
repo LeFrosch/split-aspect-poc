@@ -1,5 +1,5 @@
 def _intellij_info_provider():
-    return provider(fields = ["outputs", "value"])
+    return provider(fields = ["outputs", "value", "present"])
 
 _IntelliJCcInfo = _intellij_info_provider()
 _IntelliJPyInfo = _intellij_info_provider()
@@ -11,7 +11,7 @@ _PROVIDERS = {
 
 def _has_provider(target):
     for provider in _PROVIDERS.values():
-        if provider in target:
+        if provider in target and target[provider].present:
             return True
 
     return False

@@ -54,7 +54,7 @@ def _write_ide_info(target, ctx, info):
     return {"intellij-info-generic": depset([file])}
 
 def _collect_info(target, ctx):
-    """Collects and joins information collected from langague specific providers."""
+    """Collects and joins information collected from language specific providers."""
     if not intellij_common.has_provider(target):
         return {}
 
@@ -63,9 +63,10 @@ def _collect_info(target, ctx):
 
     ide_info["label"] = _stringify_label(target.label)
     ide_info["kind"] = ctx.rule.kind
+    ide_info["configuration_hash"] = getattr(ctx.configuration, "short_id", "")
 
     for name, provider in intellij_common.PROVIDERS.items():
-        if not provider in target:
+        if not provider in target or not target[provider].present:
             continue
 
         ide_info[name] = target[provider].value
