@@ -25,7 +25,7 @@ SRCS_VERSION_MAPPING = {
 
 def _get_srcs_version(ctx):
     srcs_version = getattr(ctx.rule.attr, "srcs_version", "PY2AND3")
-    return SRCS_VERSION_MAPPING.get(srcs_version, default = SRC_PY2AND3)
+    return SRCS_VERSION_MAPPING.get(srcs_version, SRC_PY2AND3)
 
 def _get_py_launcher(ctx):
     """Returns the python launcher for a given rule."""
@@ -59,9 +59,8 @@ def _aspect_impl(target, ctx):
         dependencies = {},
     )]
 
-intellij_py_info_aspect = aspect(
+intellij_py_info_aspect = intellij_common.aspect(
     implementation = _aspect_impl,
-    attr_aspects = ["*"],
     fragments = ["py"],
     provides = [intellij_provider.PyInfo],
 )

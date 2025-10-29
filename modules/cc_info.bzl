@@ -1,8 +1,11 @@
 load("@rules_cc//cc:defs.bzl", "CcInfo")
+load("@rules_cc//cc:find_cc_toolchain.bzl", "CC_TOOLCHAIN_TYPE")
+load("@version//:version.bzl", "version")
 load("//common:artifact_location.bzl", "artifact_location")
 load("//common:common.bzl", "intellij_common")
 load("//common:dependencies.bzl", "intellij_deps")
 load("//common:make_variables.bzl", "expand_make_variables")
+load(":cc_toolchain_info.bzl", "intellij_cc_toolchain_info_aspect")
 load(":provider.bzl", "intellij_provider")
 
 # additional compile time dependencies collect for cc targets
@@ -15,11 +18,10 @@ COMPILTE_TIME_DEPS = [
 
 def _collect_rule_context(ctx):
     """Collect additional information from the rule attributes of cc_xxx rules."""
-
     if not ctx.rule.kind.startswith("cc_"):
         return struct()
 
-    return struct(
+    return intellij_common.struct(
         sources = artifact_location.from_attr(ctx, "srcs"),
         headers = artifact_location.from_attr(ctx, "hdrs"),
         textual_headers = artifact_location.from_attr(ctx, "textual_hdrs"),
@@ -31,7 +33,6 @@ def _collect_rule_context(ctx):
 
 def _collect_compilation_context(ctx, target):
     """Collect information from the compilation context provided by the CcInfo provider."""
-
     compilation_context = target[CcInfo].compilation_context
 
     # merge current compilation context with context of implementation dependencies
@@ -45,7 +46,7 @@ def _collect_compilation_context(ctx, target):
     # external_includes available since bazel 7
     external_includes = getattr(compilation_context, "external_includes", depset()).to_list()
 
-    return struct(
+    return intellij_common.struct(
         headers = [artifact_location.from_file(it) for it in compilation_context.headers.to_list()],
         defines = compilation_context.defines.to_list(),
         includes = compilation_context.includes.to_list(),
@@ -55,6 +56,7 @@ def _collect_compilation_context(ctx, target):
     )
 
 def _aspect_guard(target, ctx):
+    """Returns true if the aspect should be applied to the current target."""
     if CcInfo not in target:
         return False
 
@@ -82,18 +84,22 @@ def _aspect_impl(target, ctx):
             "intellij-compile-cpp": compile_files,
             "intellij-resolve-cpp": resolve_files,
         },
-        value = struct(
+        value = intellij_common.struct(
             rule_context = _collect_rule_context(ctx),
             compilation_context = _collect_compilation_context(ctx, target),
         ),
         dependencies = {
-            intellij_deps.COMPILE_TIME: intellij_deps.collect(ctx, COMPILTE_TIME_DEPS),
+            intellij_deps.COMPILE_TIME: intellij_deps.collect(
+                ctx,
+                attributes = COMPILTE_TIME_DEPS,
+                toolchain_types = [CC_TOOLCHAIN_TYPE],
+            ),
         },
     )]
 
-intellij_cc_info_aspect = aspect(
+intellij_cc_info_aspect = intellij_common.aspect(
     implementation = _aspect_impl,
-    attr_aspects = ["*"],
-    fragments = ["cpp"],
     provides = [intellij_provider.CcInfo],
+    requires = [intellij_cc_toolchain_info_aspect],
+    toolchains_aspects = [str(CC_TOOLCHAIN_TYPE)],
 )

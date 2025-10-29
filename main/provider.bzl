@@ -1,9 +1,8 @@
-IntelliJInfo = provider(fields = ["outputs", "dependencies", "key"])
+IntelliJInfo = provider(fields = ["outputs", "dependencies"])
 
-def _create(key):
+def _create():
     """Creates an empty IntelliJInfo provider."""
     return IntelliJInfo(
-        key = key,
         outputs = {},
         dependencies = {},
     )
