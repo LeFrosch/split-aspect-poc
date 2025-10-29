@@ -2,6 +2,7 @@ load("@rules_cc//cc:defs.bzl", "CcInfo")
 load("//common:artifact_location.bzl", "artifact_location")
 load("//common:make_variables.bzl", "expand_make_variables")
 load("//common:provider.bzl", "intellij_provider")
+load("//common:common.bzl", "intellij_common")
 
 def _collect_rule_context(ctx):
     """Collect additional information from the rule attributes of cc_xxx rules."""
@@ -13,10 +14,10 @@ def _collect_rule_context(ctx):
         sources = artifact_location.from_attr(ctx, "srcs"),
         headers = artifact_location.from_attr(ctx, "hdrs"),
         textual_headers = artifact_location.from_attr(ctx, "textual_hdrs"),
-        copts = expand_make_variables(ctx, True, getattr(ctx.rule.attr, "copts", [])),
-        args = expand_make_variables(ctx, True, getattr(ctx.rule.attr, "args", [])),
-        include_prefix = getattr(ctx.rule.attr, "include_prefix", ""),
-        strip_include_prefix = getattr(ctx.rule.attr, "strip_include_prefix", ""),
+        copts = expand_make_variables(ctx, True, intellij_common.attr_as_list(ctx, "copts")),
+        args = expand_make_variables(ctx, True, intellij_common.attr_as_list(ctx, "args")),
+        include_prefix = intellij_common.attr_as_str(ctx, "include_prefix"),
+        strip_include_prefix = intellij_common.attr_as_str(ctx, "strip_include_prefix"),
     )
 
 def _collect_compilation_context(ctx, target):
