@@ -1,4 +1,4 @@
-load("//modules:common.bzl", "intellij_common")
+load("//common:provider.bzl", "intellij_provider")
 
 IntelliJInfo = provider(fields = ["outputs"])
 
@@ -55,7 +55,7 @@ def _write_ide_info(target, ctx, info):
 
 def _collect_info(target, ctx):
     """Collects and joins information collected from language specific providers."""
-    if not intellij_common.has_provider(target):
+    if not intellij_provider.any(target):
         return {}
 
     ide_info = {}
@@ -65,7 +65,7 @@ def _collect_info(target, ctx):
     ide_info["kind"] = ctx.rule.kind
     ide_info["configuration_hash"] = getattr(ctx.configuration, "short_id", "")
 
-    for name, provider in intellij_common.PROVIDERS.items():
+    for name, provider in intellij_provider.ALL.items():
         if not provider in target or not target[provider].present:
             continue
 
@@ -83,6 +83,6 @@ def _aspect_impl(target, ctx):
 intellij_info_aspect = aspect(
     implementation = _aspect_impl,
     attr_aspects = ["*"],
-    required_aspect_providers = [[it] for it in intellij_common.PROVIDERS.values()],
+    required_aspect_providers = [[it] for it in intellij_provider.ALL.values()],
     provides = [IntelliJInfo],
 )

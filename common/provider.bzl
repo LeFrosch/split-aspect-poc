@@ -9,16 +9,16 @@ _PROVIDERS = {
     "py_info": _IntelliJPyInfo,
 }
 
-def _has_provider(target):
+def _has_any_provider(target):
     for provider in _PROVIDERS.values():
         if provider in target and target[provider].present:
             return True
 
     return False
 
-intellij_common = struct(
-    IntelliJCcInfo = _IntelliJCcInfo,
-    IntelliJPyInfo = _IntelliJPyInfo,
-    PROVIDERS = _PROVIDERS,
-    has_provider = _has_provider,
+intellij_provider = struct(
+    CcInfo = _IntelliJCcInfo,
+    PyInfo = _IntelliJPyInfo,
+    ALL = _PROVIDERS,
+    any = _has_any_provider,
 )
