@@ -15,7 +15,7 @@ def _label_to_string(label):
     return s.lstrip("@") if s.startswith("@@//") or s.startswith("@//") else s
 
 def _attr_as_str(ctx, name):
-    """Retunrs the attr as a string. Or the empty string if the attr is invalid."""
+    """Returns the attr as a string. Or the empty string if the attr is invalid."""
     value = getattr(ctx.rule.attr, name, None)
 
     if not value or type(value) != "str":
@@ -36,7 +36,7 @@ def _attr_as_list(ctx, name):
     return value
 
 def _attr_as_label_list(ctx, name):
-    """Returns the attr as a list of targets. Fiters out everything except targets."""
+    """Returns the attr as a list of targets. Filters out everything except targets."""
     return [it for it in _attr_as_list(ctx, name) if type(it) == "Target"]
 
 intellij_common = struct(

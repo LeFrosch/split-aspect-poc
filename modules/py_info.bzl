@@ -2,7 +2,7 @@ load("@rules_python//python:defs.bzl", "PyInfo")
 load("//common:artifact_location.bzl", "artifact_location")
 load("//common:common.bzl", "intellij_common")
 load("//common:make_variables.bzl", "expand_make_variables")
-load("//common:provider.bzl", "intellij_provider")
+load(":provider.bzl", "intellij_provider")
 
 # PythonVersion enum; must match PyIdeInfo.PythonVersion
 PY2 = 1
@@ -56,6 +56,7 @@ def _aspect_impl(target, ctx):
             args = expand_make_variables(ctx, False, intellij_common.attr_as_list(ctx, "args")),
             imports = intellij_common.attr_as_list(ctx, "imports"),
         ),
+        dependencies = {},
     )]
 
 intellij_py_info_aspect = aspect(

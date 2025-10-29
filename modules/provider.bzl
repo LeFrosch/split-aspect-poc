@@ -1,5 +1,5 @@
 def _intellij_info_provider():
-    return provider(fields = ["outputs", "value", "present"])
+    return provider(fields = ["outputs", "dependencies", "value", "present"])
 
 _IntelliJCcInfo = _intellij_info_provider()
 _IntelliJPyInfo = _intellij_info_provider()

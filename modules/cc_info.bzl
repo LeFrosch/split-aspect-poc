@@ -1,8 +1,17 @@
 load("@rules_cc//cc:defs.bzl", "CcInfo")
 load("//common:artifact_location.bzl", "artifact_location")
-load("//common:make_variables.bzl", "expand_make_variables")
-load("//common:provider.bzl", "intellij_provider")
 load("//common:common.bzl", "intellij_common")
+load("//common:dependencies.bzl", "intellij_deps")
+load("//common:make_variables.bzl", "expand_make_variables")
+load(":provider.bzl", "intellij_provider")
+
+# additional compile time dependencies collect for cc targets
+COMPILTE_TIME_DEPS = [
+    "_stl",
+    "_cc_toolchain",
+    "implementation_deps",  # for cc_library
+    "malloc",  # for cc_binary
+]
 
 def _collect_rule_context(ctx):
     """Collect additional information from the rule attributes of cc_xxx rules."""
@@ -77,6 +86,9 @@ def _aspect_impl(target, ctx):
             rule_context = _collect_rule_context(ctx),
             compilation_context = _collect_compilation_context(ctx, target),
         ),
+        dependencies = {
+            intellij_deps.COMPILE_TIME: intellij_deps.collect(ctx, COMPILTE_TIME_DEPS),
+        },
     )]
 
 intellij_cc_info_aspect = aspect(
@@ -85,4 +97,3 @@ intellij_cc_info_aspect = aspect(
     fragments = ["cpp"],
     provides = [intellij_provider.CcInfo],
 )
-
