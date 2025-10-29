@@ -1,3 +1,5 @@
+load("//common:artifact_location.bzl", "artifact_location")
+load("//common:common.bzl", "intellij_common")
 load("//common:provider.bzl", "intellij_provider")
 
 IntelliJInfo = provider(fields = ["outputs"])
@@ -9,6 +11,35 @@ def _stringify_label(label):
     # If the label is in the main repo, make sure any leading '@'s are stripped so that tests are
     # okay with the fixture setups.
     return s.lstrip("@") if s.startswith("@@//") or s.startswith("@//") else s
+
+def _build_file_location(ctx):
+    """Creates an ArtifactLocation proto representing a location of a given BUILD file."""
+    return artifact_location.create(
+        ctx.label.workspace_root,
+        ctx.label.package + "/BUILD",
+        True,
+        intellij_common.label_is_external(ctx.label),
+    )
+
+def _is_intellij_aspect_id(id):
+    """Heuristic to filter intellij info aspect ids"""
+    return "%intellij_" in id and id.endswith("_info_aspect")
+
+def _create_target_key(ctx, target):
+    """Returns a TargetKey proto struct from a target."""
+
+    return intellij_common.struct(
+        aspect_ids = [it for it in ctx.aspect_ids if not _is_intellij_aspect_id(it)],
+        label = _stringify_label(target.label),
+        configuration = getattr(ctx.configuration, "short_id", None),
+    )
+
+def _hash_target_key(key):
+    """Creates a unique hash based on the target key."""
+
+    parts = [key.label, getattr(key, "configuration", "")] + key.aspect_ids
+    return hash(".".join(parts))
+    
 
 def _merge_output_groups(a, b):
     """Merges to dictionaries defining multiple output groups."""
@@ -42,11 +73,11 @@ def _dependency_output_groups(ctx):
 
     return result
 
-def _write_ide_info(target, ctx, info):
+def _write_ide_info(target, ctx, info, key):
     """Serializes and writes the info struct to the intellij-info.txt file."""
 
     # bazel allows target names differing only by case, so append a hash to support case-insensitive file systems
-    file_name = "%s-%s.intellij-info.txt" % (target.label.name, str(hash(target.label.name)))
+    file_name = "%s-%s.intellij-info.txt" % (target.label.name, _hash_target_key(key))
 
     file = ctx.actions.declare_file(file_name)
     ctx.actions.write(file, proto.encode_text(struct(**info)))
@@ -58,13 +89,21 @@ def _collect_info(target, ctx):
     if not intellij_provider.any(target):
         return {}
 
-    ide_info = {}
+    tags = ctx.rule.attr.tags
+
+    if "no-ide" in tags:
+        return []
+
+    key = _create_target_key(ctx, target)
+
+    ide_info = {
+        "build_file_artifact_location": _build_file_location(ctx),
+        "kind_string": ctx.rule.kind,
+        "key": key,
+        "tags": tags,
+    }
+
     outputs = {}
-
-    ide_info["label"] = _stringify_label(target.label)
-    ide_info["kind"] = ctx.rule.kind
-    ide_info["configuration_hash"] = getattr(ctx.configuration, "short_id", "")
-
     for name, provider in intellij_provider.ALL.items():
         if not provider in target or not target[provider].present:
             continue
@@ -72,7 +111,7 @@ def _collect_info(target, ctx):
         ide_info[name] = target[provider].value
         outputs = _merge_output_groups(outputs, target[provider].outputs)
 
-    return _merge_output_groups(outputs, _write_ide_info(target, ctx, ide_info))
+    return _merge_output_groups(outputs, _write_ide_info(target, ctx, ide_info, key))
 
 def _aspect_impl(target, ctx):
     outputs = _collect_info(target, ctx)
