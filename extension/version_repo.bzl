@@ -1,3 +1,6 @@
+load("@bazel_skylib//lib:versions.bzl", "versions")
+
+# source: https://github.com/bazel-contrib/bazel_features/blob/main/private/version_repo.bzl
 def _version_repo_impl(rctx):
     rctx.file(
         "BUILD.bazel",
@@ -13,10 +16,9 @@ bzl_library(
 )
 """,
     )
-    rctx.file("version.bzl", "version = '" + native.bazel_version + "'")
+    rctx.file("version.bzl", "version = '" + versions.get() + "'")
 
 version_repo = repository_rule(
     _version_repo_impl,
-    # Force reruns on server restarts to keep native.bazel_version up-to-date.
-    local = True,
+    local = True,  # force reruns on server restarts to keep native.bazel_version up-to-date.
 )

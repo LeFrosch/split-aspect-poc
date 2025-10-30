@@ -1,3 +1,5 @@
+load(":version.bzl", "bazel_version")
+
 _IntelliJTargetInfo = provider(fields = ["owner", "key"])
 
 def _struct(**kwargs):
@@ -71,6 +73,9 @@ def _aspect(**kwargs):
     """A replacement for the standard `aspect` function that modifies some of the arguments."""
     requires = kwargs.pop("requires", [])
     requires.append(_intellij_target_info_aspect)
+
+    if bazel_version.le(8):
+        kwargs.pop("toolchains_aspects", None)
 
     return aspect(
         attr_aspects = ["*"],
