@@ -48,7 +48,7 @@ def _attr_as_label_list(ctx, name):
 def _intellij_info_aspect_impl(target, ctx):
     """Implementation for the target info aspect. Creates the key for the target."""
     key = _struct(
-        aspect_ids = [it for it in ctx.aspect_ids if "_intellij_target_info_aspect" in it],
+        aspect_ids = [it for it in ctx.aspect_ids if not "_intellij_target_info_aspect" in it],
         label = intellij_common.label_to_string(target.label),
         configuration = getattr(ctx.configuration, "short_id", None),
     )

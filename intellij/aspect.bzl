@@ -4,7 +4,7 @@ load("//common:dependencies.bzl", "intellij_deps")
 load("//modules:provider.bzl", "intellij_provider")
 load(":provider.bzl", "IntelliJInfo", "intellij_info")
 
-# compilte time dependencies collected for every target
+# compile time dependencies collected for every target
 COMPILE_TIME_DEPS = ["deps"]
 
 def _get_build_file_location(ctx):
@@ -76,7 +76,7 @@ def _merge_target_info(provider, target, ctx):
     ide_info["deps"] = _serialize_dependencies(provider)
 
     # write the ide info to file and add the generated file to the appropriate output group
-    intellij_info.add_file(provider, "intellij-info-generic", _write_ide_info(target, ctx, ide_info))
+    intellij_info.add_ide_info(provider, _write_ide_info(target, ctx, ide_info))
 
 def _aspect_impl(target, ctx):
     provider = intellij_info.create()

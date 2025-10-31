@@ -1,5 +1,7 @@
 IntelliJInfo = provider(fields = ["outputs", "dependencies"])
 
+_IDE_INFO_FILE_OUTPUT_GROUP = "intellij-info-generic"
+
 def _create():
     """Creates an empty IntelliJInfo provider."""
     return IntelliJInfo(
@@ -20,9 +22,13 @@ def _update(it, other):
     _update_depset_dict(it.outputs, other.outputs)
     _update_depset_dict(it.dependencies, other.dependencies)
 
-def _add_file(it, group, file):
-    """Updates this provider. Adds a file to the specified output group."""
-    _update_depset_dict(it.outputs, {group: depset([file])})
+def _add_ide_info(it, file):
+    """Updates this provider. Adds a intellij ide info file."""
+    _update_depset_dict(it.outputs, {_IDE_INFO_FILE_OUTPUT_GROUP: depset([file])})
+
+def _get_ide_info(it):
+    """Gets the transitive intellij ide info file depset."""
+    return it.outputs.get(_IDE_INFO_FILE_OUTPUT_GROUP, depset())
 
 def _add_deps(it, group, deps):
     """Updates this provider. Adds all dependencies to the specified dependency group."""
@@ -31,6 +37,7 @@ def _add_deps(it, group, deps):
 intellij_info = struct(
     create = _create,
     update = _update,
-    add_file = _add_file,
+    add_ide_info= _add_ide_info,
+    get_ide_info= _get_ide_info,
     add_deps = _add_deps,
 )
