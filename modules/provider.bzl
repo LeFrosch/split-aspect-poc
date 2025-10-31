@@ -14,9 +14,9 @@ _IntelliJCcToolchainInfo = _intellij_info_provider()
 _IntelliJPyInfo = _intellij_info_provider()
 
 _PROVIDERS = {
-    "cc_info": _IntelliJCcInfo,
-    "cc_toolchain_info": _IntelliJCcToolchainInfo,
-    "py_info": _IntelliJPyInfo,
+    "c_ide_info": _IntelliJCcInfo,
+    "c_toolchain_ide_info": _IntelliJCcToolchainInfo,
+    "py_ide_info": _IntelliJPyInfo,
 }
 
 def _has_any_provider(target):
