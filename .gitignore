@@ -1,2 +1,7 @@
+# Bazel files
 bazel-*
 MODULE.bazel.lock
+
+# IntelliJ files
+.ijwb/
+.clwb/
