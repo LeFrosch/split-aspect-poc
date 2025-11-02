@@ -27,7 +27,6 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
-import kotlin.io.path.name
 import kotlin.io.path.toPath
 
 private val ASPECTS = listOf(
@@ -35,6 +34,8 @@ private val ASPECTS = listOf(
   "@intellij_aspect//modules:py_info.bzl%intellij_py_info_aspect",
   "@intellij_aspect//intellij:aspect.bzl%intellij_info_aspect",
 )
+
+private const val OUTPUT_GROUP = "intellij-info"
 
 private val MAPPER = ObjectMapper()
 
@@ -107,8 +108,8 @@ private fun runBazelBuild(bazelExecutable: String, project: Path): List<Path> {
     "build",
     "//...",
     "--aspects=" + ASPECTS.joinToString(","),
-    "--build_event_json_file=" + bepFile.toString(),
-    "--output_groups=intellij-info",
+    "--build_event_json_file=$bepFile",
+    "--output_groups=$OUTPUT_GROUP",
   )
 
   execute(cmd, pwd = project)

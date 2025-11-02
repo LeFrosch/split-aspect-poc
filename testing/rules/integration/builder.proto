@@ -18,19 +18,24 @@ import "private/proto/ide_info.proto";
 option java_outer_classname = "BuilderProto";
 option java_package = "com.intellij.aspect.testing.rules.integration";
 
-message RuleOverride {
+message RuleSet {
   string name = 1;
-  string archive = 2;
+  strinv version = 2
+  string path = 3;
 }
 
-message BuilderInput {
-  string bazel_executable = 1;
-  string project_zip = 2;
-  string output_file = 3;
+message Config {
+  string project_zip = 1;
+  string output_file = 2;
 
-  repeated RuleOverride overrides = 4;
+  string bazel_version = 3
+  string bazel_executable = 4;
+
+  repeated RuleSet rules = 4;
 }
 
-message BuilderOutput {
-  repeated TargetIdeInfo targets = 1;
+message Fixture {
+  string bazel_version = 1;
+  repeated string rules = 2;
+  repeated TargetIdeInfo targets = 3;
 }

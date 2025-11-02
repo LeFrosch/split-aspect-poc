@@ -1,4 +1,7 @@
 load("@bazel_skylib//lib:paths.bzl", "paths")
+load("@rules_java//java:defs.bzl", "java_test")
+load("@rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library")
+load("@rules_pkg//pkg:pkg.bzl", "pkg_zip")
 load("@rules_pkg//pkg:providers.bzl", "PackageFilesInfo")
 
 def _aspect_project_impl(ctx):
@@ -14,7 +17,7 @@ def _aspect_project_impl(ctx):
         PackageFilesInfo(dest_src_map = map),
     ]
 
-aspect_project = rule(
+_aspect_project = rule(
     attrs = {
         "srcs": attr.label_list(
             allow_files = True,
@@ -23,6 +26,21 @@ aspect_project = rule(
     },
     implementation = _aspect_project_impl,
 )
+
+def _aspect_fixture_build(ctx, config):
+    output_file = ctx.actions.declare_file(ctx.label.name + ".intellij-aspect-fixture")
+
+    args = struct(
+        bazel_executable = config.bazel.path,
+        project_zip = ctx.file.project.path,
+        output_file = output_file.path,
+        overrides = [
+            struct(name = "intellij_aspect", archive = ctx.file._aspect.path),
+            struct(name = "rules_cc", archive = config.rules_cc.path),
+            struct(name = "rules_python", archive = config.rules_python.path),
+        ],
+    )
+
 
 def _aspect_fixture_impl(ctx):
     output_file = ctx.actions.declare_file(ctx.label.name + ".intellij-aspect-fixture")
@@ -42,9 +60,9 @@ def _aspect_fixture_impl(ctx):
         inputs = [
             ctx.file.bazel,
             ctx.file.project,
-            ctx.file._aspect,            
-            ctx.file.rules_cc,            
-            ctx.file.rules_python,            
+            ctx.file._aspect,
+            ctx.file.rules_cc,
+            ctx.file.rules_python,
         ],
         outputs = [output_file],
         executable = ctx.executable._builder,
@@ -56,25 +74,23 @@ def _aspect_fixture_impl(ctx):
 
     return [DefaultInfo(files = depset([output_file]))]
 
-aspect_fixture = rule(
+_aspect_fixture = rule(
     attrs = {
         "project": attr.label(
             allow_single_file = [".zip"],
             mandatory = True,
         ),
-        "bazel": attr.label(
-            allow_single_file = True,
-            cfg = "exec",
-            executable = True,
-            default = Label("@integration_test_bazel//:latest"),
+        "bazel": attr.label_list(
+            allow_files = True,
+            default = [Label("@integration_test_bazel//:latest")],
         ),
-        "rules_cc": attr.label(
-            allow_single_file = [".tar.gz"],
-            default = Label("@integration_test_rules_cc//:latest"),
+        "rules_cc": attr.label_list(
+            allow_files = [".tar.gz"],
+            default = [Label("@integration_test_rules_cc//:latest")],
         ),
-        "rules_python": attr.label(
-            allow_single_file = [".tar.gz"],
-            default = Label("@integration_test_rules_python//:latest"),
+        "rules_python": attr.label_list(
+            allow_files = [".tar.gz"],
+            default = [Label("@integration_test_rules_python//:latest")],
         ),
         "_aspect": attr.label(
             allow_single_file = [".zip"],
@@ -89,3 +105,33 @@ aspect_fixture = rule(
     },
     implementation = _aspect_fixture_impl,
 )
+
+def aspect_fixture(name, test, srcs, bazel = None):
+    """
+    Creates an aspect test.
+
+    The fixture can be loaded in the test using
+    the IntellijAspectResource:
+
+    @Rule
+    @JvmField
+    val aspect: IntellijAspectResource = IntellijAspectResource()
+    """
+
+    _aspect_project(
+        name = name + "_project",
+        srcs = srcs,
+        testonly = 1,
+    )
+
+    pkg_zip(
+        name = name + "_zip",
+        srcs = [":project"],
+        testonly = 1,
+    )
+
+    _aspect_fixture(
+        name = name + "_fixture",
+        project = name + "_project",
+        testonly = 1,
+    )
