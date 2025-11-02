@@ -50,15 +50,15 @@ aspect_fixture = rule(
     implementation = _aspect_fixture_impl,
 )
 
-def aspect_test(name, test, data, deps = None):
+def aspect_test(name, test, data, deps = None, env = None):
     """
     Creates an aspect test. Runs the aspect on `aspect_deps` and makes the
-    result available as a fixture called <name>_fixture. The fixture can be
-    loaded in the test using the IntellijAspectResource:
+    result available as a fixture. The fixture can be loaded in the test using
+    the IntellijAspectResource:
 
     @Rule
     @JvmField
-    val aspect: IntellijAspectResource = IntellijAspectResource(this::class.java)
+    val aspect: IntellijAspectResource = IntellijAspectResource()
     """
     aspect_fixture(
         name = name + "_fixture",
@@ -84,5 +84,7 @@ def aspect_test(name, test, data, deps = None):
         runtime_deps = [name + "_lib"],
         test_class = "com.intellij.aspect.%s.%s" % (native.package_name().replace("/", "."), test.removesuffix(".kt")),
         visibility = ["//testing:__subpackages__"],
-        env = {"ASPECT_FIXTURE": "$(rlocationpath %s)" % (name + "_fixture")},
+        env = (env or {}) | {
+            "ASPECT_FIXTURE": "$(rlocationpath %s)" % (name + "_fixture"),
+        },
     )

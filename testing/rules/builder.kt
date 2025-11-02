@@ -25,7 +25,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.name
 
-private const val IDE_INFO_FILE_OUTPUT_GROUP = "intellij-info-generic"
+private const val IDE_INFO_FILE_OUTPUT_GROUP = "intellij-info"
 
 fun main(args: Array<String>) {
   val inputFiles = args.filter { it.startsWith("@") }.associate(::mapInputFile)

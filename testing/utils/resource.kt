@@ -23,6 +23,8 @@ import java.io.FileInputStream
 import java.io.IOException
 import java.nio.file.Path
 
+private const val INTELLIJ_INFO_OUTPUT_GROUP = "intellij-info"
+
 /**
  * JUnit resource for loading and accessing intellij aspect test fixtures.
  */
@@ -62,6 +64,24 @@ class IntellijAspectResource : ExternalResource() {
 
     return target.cIdeInfo
   }
+
+  fun findPyIdeInfo(
+    label: String,
+    externalRepo: String? = null,
+    fractionalAspectIds: List<String> = emptyList(),
+  ): PyIdeInfo {
+    val target = findTarget(label, externalRepo, fractionalAspectIds)
+    require(target.hasPyIdeInfo()) { "target has no py_ide_info: $label" }
+
+    return target.pyIdeInfo
+  }
+
+  fun findOutputGroup(outputGroup: String): List<Path> {
+    val group = fixture.outputGroupsList.firstOrNull { it.name == outputGroup } ?: return emptyList()
+    return group.filePathsList.map(Path::of)
+  }
+
+  fun findInfoOutputGroup(): List<Path> = findOutputGroup(INTELLIJ_INFO_OUTPUT_GROUP)
 }
 
 @Throws(IOException::class)
@@ -84,8 +104,8 @@ private fun matchTarget(
   fractionalAspectIds: List<String>,
 ): Boolean {
   return info.hasKey()
-          && matchLabel(info.key, label, externalRepo)
-          && matchAspectIds(info.key, fractionalAspectIds)
+      && matchLabel(info.key, label, externalRepo)
+      && matchAspectIds(info.key, fractionalAspectIds)
 }
 
 /**

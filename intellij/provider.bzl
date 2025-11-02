@@ -1,6 +1,6 @@
 IntelliJInfo = provider(fields = ["outputs", "dependencies"])
 
-_IDE_INFO_FILE_OUTPUT_GROUP = "intellij-info-generic"
+_IDE_INFO_FILE_OUTPUT_GROUP = "intellij-info"
 
 def _create():
     """Creates an empty IntelliJInfo provider."""
@@ -37,7 +37,7 @@ def _add_deps(it, group, deps):
 intellij_info = struct(
     create = _create,
     update = _update,
-    add_ide_info= _add_ide_info,
-    get_ide_info= _get_ide_info,
+    add_ide_info = _add_ide_info,
+    get_ide_info = _get_ide_info,
     add_deps = _add_deps,
 )
