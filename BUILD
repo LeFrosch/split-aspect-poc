@@ -14,6 +14,7 @@ pkg_zip(
         "//intellij",
         "//modules",
     ],
+    visibility = ["//visibility:public"],
 )
 
 pkg_zip(
@@ -25,4 +26,5 @@ pkg_zip(
         "//intellij",
         "//modules",
     ],
+    visibility = ["//visibility:public"],
 )

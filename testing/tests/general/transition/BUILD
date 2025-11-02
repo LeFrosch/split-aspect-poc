@@ -1,5 +1,5 @@
 load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
-load("//testing/rules:aspect_test.bzl", "aspect_test")
+load("//testing/rules/aspect:defs.bzl", "aspect_test")
 load(":multi_arch_binary.bzl", "multi_arch_binary")
 
 cc_binary(

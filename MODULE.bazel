@@ -22,6 +22,7 @@ maven.install(
         "com.google.code.gson:gson:2.10.1",
         "com.google.errorprone:error_prone_annotations:2.23.0",
         "com.google.guava:guava:33.0.0-jre",
+        "com.fasterxml.jackson.core:jackson-databind:2.20.1",
     ],
     known_contributing_modules = [
         "bazel_worker_java",
@@ -30,6 +31,24 @@ maven.install(
     ],
 )
 use_repo(maven, "maven")
+
+integration_test = use_extension("//testing/rules/integration:extension.bzl", "integration_test")
+integration_test.install(
+    bazel = [
+        "6.5.0",
+        "7.7.0",
+        "8.4.2",
+    ],
+    rules_cc = [
+        "0.0.9",
+        "0.2.9",
+    ],
+    rules_python = [
+        "0.20.0",
+        "1.6.3",
+    ],
+)
+use_repo(integration_test, "integration_test_bazel", "integration_test_rules_cc", "integration_test_rules_python")
 
 cc_toolchains = use_extension("@rules_cc//cc:extensions.bzl", "cc_configure_extension")
 use_repo(cc_toolchains, "local_config_cc_toolchains")

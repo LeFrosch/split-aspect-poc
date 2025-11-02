@@ -1,5 +1,5 @@
 load("@rules_python//python:defs.bzl", "py_binary")
-load("//testing/rules:aspect_test.bzl", "aspect_test")
+load("//testing/rules/aspect:defs.bzl", "aspect_test")
 
 py_binary(
     name = "simple",

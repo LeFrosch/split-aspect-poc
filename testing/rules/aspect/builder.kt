@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.intellij.aspect.testing.rules
+package com.intellij.aspect.testing.rules.aspect
 
 import com.google.devtools.intellij.AspectFixture.*
 import com.google.devtools.intellij.ideinfo.IdeInfo.*

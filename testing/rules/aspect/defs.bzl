@@ -43,7 +43,7 @@ aspect_fixture = rule(
         "_builder": attr.label(
             allow_files = True,
             cfg = "exec",
-            default = Label("//testing/rules:builder_bin"),
+            default = Label("//testing/rules/aspect:builder_bin"),
             executable = True,
         ),
     },
