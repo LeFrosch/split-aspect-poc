@@ -8,10 +8,10 @@ load(":provider.bzl", "IntelliJInfo", "intellij_info")
 COMPILE_TIME_DEPS = ["deps"]
 
 def _get_build_file_location(ctx):
-    """Creates an ArtifactLocation proto representing a location of a given BUILD file."""
+    """Creates an ArtifactLocation proto representing a location of a given BUILD.fix file."""
     return artifact_location.create(
         ctx.label.workspace_root,
-        ctx.label.package + "/BUILD",
+        ctx.label.package + "/BUILD.fix" if ctx.label.package else "BUILD",
         True,
         intellij_common.label_is_external(ctx.label),
     )

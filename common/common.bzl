@@ -1,6 +1,12 @@
 load(":version.bzl", "bazel_version")
 
-_IntelliJTargetInfo = provider(fields = ["owner", "key"])
+_IntelliJTargetInfo = provider(
+    doc = "Internal target identity used by IntelliJ aspects.",
+    fields = {
+        "owner": "Target - Underlying Bazel target that owns this info.",
+        "key": "struct - Stable identity (label, configuration, aspect ids).",
+    },
+)
 
 def _struct(**kwargs):
     """A replacement for standard `struct` function that omits the fields with None value."""

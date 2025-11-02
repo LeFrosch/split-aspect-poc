@@ -28,7 +28,7 @@ def _collect_from_attributes(ctx, result, attributes):
         result.extend(intellij_common.attr_as_label_list(ctx, name))
 
 def _collect(ctx, attributes = None, toolchain_types = None):
-    """Collects dependencies from multiple attributes and toolchains into one list."""
+    """Collects dependencies from multiple attributes and toolchains into one list. Returns a depst[Target]."""
     result = []
     _collect_from_attributes(ctx, result, attributes)
     _collect_from_toolchains(ctx, result, toolchain_types)

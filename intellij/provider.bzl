@@ -1,4 +1,10 @@
-IntelliJInfo = provider(fields = ["outputs", "dependencies"])
+IntelliJInfo = provider(
+    doc = "Aggregation provider for IntelliJ aspect outputs and dependency edges.",
+    fields = {
+        "outputs": "dict[str, depset[File]] - Output groups emitted by this target (e.g., intellij-info).",
+        "dependencies": "dict[int, depset[Target]] - Direct dependencies grouped by dependency type (see intellij_deps constants).",
+    },
+)
 
 _IDE_INFO_FILE_OUTPUT_GROUP = "intellij-info"
 

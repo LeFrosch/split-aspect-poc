@@ -1,5 +1,5 @@
 load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
-load("@rules_pkg//pkg:pkg.bzl", "pkg_zip")
+load("@rules_pkg//pkg:pkg.bzl", "pkg_tar", "pkg_zip")
 
 copy_file(
     name = "module_bcr",
@@ -14,9 +14,10 @@ pkg_zip(
         "//intellij",
         "//modules",
     ],
+    visibility = ["//visibility:public"],
 )
 
-pkg_zip(
+pkg_tar(
     name = "archive_bcr",
     srcs = [
         ":module_bcr",
@@ -25,4 +26,7 @@ pkg_zip(
         "//intellij",
         "//modules",
     ],
+    extension = "tar.gz",
+    package_dir = "intellij_aspect",
+    visibility = ["//visibility:public"],
 )

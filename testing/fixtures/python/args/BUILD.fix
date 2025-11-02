@@ -1,0 +1,43 @@
+load("@rules_python//python:defs.bzl", "py_binary")
+
+py_binary(
+    name = "simple",
+    srcs = ["simple.py"],
+    python_version = "PY3",
+)
+
+py_binary(
+    name = "simple_with_main",
+    srcs = ["simple.py"],
+    main = "simple.py",
+    python_version = "PY3",
+)
+
+py_binary(
+    name = "simple_with_args",
+    srcs = ["simple.py"],
+    args = [
+        "--ARG1",
+        "--ARG2=$(COMPILATION_MODE)",
+        "--ARG3='with spaces'",
+    ],
+    main = "simple.py",
+    python_version = "PY3",
+)
+
+genrule(
+    name = "datadepfile",
+    outs = ["datadepfile.txt"],
+    cmd = "touch $@",
+)
+
+py_binary(
+    name = "simple_with_datadeps",
+    srcs = ["simple.py"],
+    args = [
+        "--ARG1=$(location :datadepfile)",
+    ],
+    data = [":datadepfile"],
+    main = "simple.py",
+    python_version = "PY3",
+)

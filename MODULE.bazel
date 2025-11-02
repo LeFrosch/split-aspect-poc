@@ -7,7 +7,6 @@ bazel_dep(name = "bazel_skylib", version = "1.8.2")
 config = use_extension("//config:extension.bzl", "config")
 use_repo(config, "intellij_config")
 
-bazel_dep(name = "hermetic_cc_toolchain", version = "3.1.0")
 bazel_dep(name = "rules_pkg", version = "1.1.0")
 bazel_dep(name = "protobuf", version = "32.1")
 bazel_dep(name = "rules_java", version = "8.16.1")
@@ -22,6 +21,7 @@ maven.install(
         "com.google.code.gson:gson:2.10.1",
         "com.google.errorprone:error_prone_annotations:2.23.0",
         "com.google.guava:guava:33.0.0-jre",
+        "com.fasterxml.jackson.core:jackson-databind:2.20.1",
     ],
     known_contributing_modules = [
         "bazel_worker_java",
@@ -31,14 +31,19 @@ maven.install(
 )
 use_repo(maven, "maven")
 
-cc_toolchains = use_extension("@rules_cc//cc:extensions.bzl", "cc_configure_extension")
-use_repo(cc_toolchains, "local_config_cc_toolchains")
-
-zig_toolchains = use_extension("@hermetic_cc_toolchain//toolchain:ext.bzl", "toolchains")
-use_repo(zig_toolchains, "zig_sdk")
-
-register_toolchains(
-    "@local_config_cc_toolchains//...",
-    "@zig_sdk//toolchain/...",
-    "@zig_sdk//libc_aware/toolchain/...",
+registry = use_extension("//private:extension.bzl", "registry")
+registry.install(
+    bazel = [
+        "7.7.0",
+        "8.4.2",
+    ],
+    rules_cc = [
+        "0.1.1",
+        "0.2.9",
+    ],
+    rules_python = [
+        "1.0.0",
+        "1.6.3",
+    ],
 )
+use_repo(registry, "registry_bazel", "registry_rules_cc", "registry_rules_python")

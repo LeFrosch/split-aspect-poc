@@ -1,11 +1,11 @@
 def _intellij_info_provider():
     return provider(
-        doc = "Module-specific information for a single target.",
+        doc = "Module-specific IntelliJ metadata for a single target.",
         fields = {
-            "outputs": "A `dict` mapping an output group name to a `depset` of output files.",
-            "dependencies": "A `dict` mapping a dependency group name to a `list` of direct dependencies.",
-            "value": "Module-specific value. The value has to be a `struct` that can be serialized to protobuf.",
-            "present": "A `bool` indicating whether the provider is present.",
+            "outputs": "dict[str, depset[File]] - Output groups produced by this module.",
+            "dependencies": "dict[int, depset[Target]] - Direct dependencies grouped by dependency type.",
+            "value": "struct - Module-specific value serializable to protobuf.",
+            "present": "bool - Whether the provider is present on this target.",
         },
     )
 
