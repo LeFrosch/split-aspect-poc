@@ -1,8 +1,6 @@
-load("@bazel_skylib//lib:versions.bzl", "versions")
-
 def _config_repo_impl(rctx):
     substitutions = {
-        "{BAZEL_VERSION}": versions.get(),
+        "{BAZEL_VERSION}": native.bazel_version,
     }
 
     rctx.file("BUILD", "")
