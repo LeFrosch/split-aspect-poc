@@ -19,7 +19,7 @@ def _aspect_guard(target, ctx):
     if not cc_common.CcToolchainInfo in target:
         return False
 
-    # targets build under exec configuration are most likely used as local tool
+    # targets built under exec configuration are most likely used as local tool
     if intellij_common.is_exec_configuration(ctx):
         return False
 

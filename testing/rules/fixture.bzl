@@ -95,7 +95,7 @@ def _test_fixture_impl(ctx):
             executable = ctx.executable._builder,
             arguments = [_config_encode(config, ctx.file.project, output)],
             mnemonic = "FixtureBuilder",
-            progress_message = "Building test fixutre for %{label} " + _config_name(config),
+            progress_message = "Building test fixture for %{label} " + _config_name(config),
             use_default_shell_env = True,
         )
 

@@ -10,7 +10,7 @@ test_fixture = _test_fixture
 
 def test_runner(name, test, fixture, deps = None, env = None):
     """
-    Creates a test runner. Runs the test for iterations of the fixture The
+    Creates a test runner. Runs the test for iterations of the fixture. The
     fixture can be loaded and iterated in the test using the AspectFixture rule:
 
     @Rule

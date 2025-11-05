@@ -7,8 +7,8 @@ load("//common:make_variables.bzl", "expand_make_variables")
 load(":cc_toolchain_info.bzl", "intellij_cc_toolchain_info_aspect")
 load(":provider.bzl", "intellij_provider")
 
-# additional compile time dependencies collect for cc targets
-COMPILTE_TIME_DEPS = [
+# additional compile time dependencies collected for cc targets
+COMPILE_TIME_DEPS = [
     "_stl",
     "_cc_toolchain",
     "implementation_deps",  # for cc_library
@@ -67,7 +67,7 @@ def _aspect_guard(target, ctx):
     if ctx.rule.kind.startswith("go_"):
         return False
 
-    # targets build under exec configuration are most likely used as local tool
+    # targets built under exec configuration are most likely used as local tool
     if intellij_common.is_exec_configuration(ctx):
         return False
 
@@ -94,7 +94,7 @@ def _aspect_impl(target, ctx):
         dependencies = {
             intellij_deps.COMPILE_TIME: intellij_deps.collect(
                 ctx,
-                attributes = COMPILTE_TIME_DEPS,
+                attributes = COMPILE_TIME_DEPS,
                 toolchain_types = [CC_TOOLCHAIN_TYPE],
             ),
         },

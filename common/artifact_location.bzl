@@ -1,7 +1,7 @@
 load("//common:common.bzl", "intellij_common")
 
 def _create(root_path, relative_path, is_source, is_external):
-    """Creates creates an ArtifactLocation proto."""
+    """Creates an ArtifactLocation proto."""
 
     return intellij_common.struct(
         relative_path = relative_path,

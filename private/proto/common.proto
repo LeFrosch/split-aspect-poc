@@ -18,7 +18,7 @@ option java_package = "com.google.devtools.intellij.aspect";
 message ArtifactLocation {
   // The path of this file relative to its root. This excludes the
   // aforementioned root, i.e. configuration-specific fragments of the path.
-  // This path is can be different to File.short_path.
+  // This path can be different to File.short_path.
   string relative_path = 2;
 
   // True if this is a source file, i.e. it is not generated.

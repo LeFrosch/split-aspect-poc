@@ -16,7 +16,7 @@ def _create():
     )
 
 def _update_depset_dict(it, other):
-    """Merges to dictionaries defining multiple depsets."""
+    """Merges two dictionaries defining multiple depsets."""
     for key in list(other):
         if key in it:
             it[key] = depset(transitive = [it[key], other[key]])

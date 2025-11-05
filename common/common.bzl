@@ -61,8 +61,8 @@ def _intellij_info_aspect_impl(target, ctx):
 
     return [intellij_common.TargetInfo(key = key, owner = target)]
 
-# This is the first aspct run and any other aspect depends on it. Provides a key
-# to uniquly reference targets between aspects.
+# This is the first aspect run and any other aspect depends on it. Provides a key
+# to uniquely reference targets between aspects.
 _intellij_target_info_aspect = aspect(
     implementation = _intellij_info_aspect_impl,
     attr_aspects = ["*"],
@@ -90,7 +90,7 @@ def _aspect(**kwargs):
     )
 
 def _is_exec_configuration(ctx):
-    """Simple heuristic to if a context is building for the exec configuration."""
+    """Simple heuristic to detect if a context is building for the exec configuration."""
     return "-exec" in ctx.genfiles_dir.path
 
 intellij_common = struct(
