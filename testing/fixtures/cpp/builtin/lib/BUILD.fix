@@ -1,0 +1,6 @@
+cc_library(
+    name = "lib",
+    hdrs = ["header.h"],
+    srcs = ["source.cc"],
+    visibility = ["//visibility:public"],
+)

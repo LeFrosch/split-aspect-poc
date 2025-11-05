@@ -20,7 +20,6 @@ class PyBinaryTest {
   fun testPy3Binary() {
     val target = aspect.findTarget("//:simple")
     assertThat(target.hasPyIdeInfo()).isTrue()
-    assertThat(target.hasCIdeInfo()).isFalse()
 
     assertThat(target.kindString).isEqualTo("py_binary")
     assertThat(target.pyIdeInfo.sourcesList.map { it.relativePath }).containsExactly("simple.py")

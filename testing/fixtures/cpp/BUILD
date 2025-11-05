@@ -38,3 +38,11 @@ test_fixture(
     strip_prefix = "transition",
     visibility = ["//testing/tests:__subpackages__"],
 )
+
+test_fixture(
+    name = "builtin",
+    srcs = glob(["builtin/**"]),
+    configs = [":matrix"],
+    strip_prefix = "builtin",
+    visibility = ["//testing/tests:__subpackages__"],
+)

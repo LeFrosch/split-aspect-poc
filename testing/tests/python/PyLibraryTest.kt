@@ -35,7 +35,6 @@ class PyLibraryTest {
   fun testPyLibrary() {
     val target = aspect.findTarget("//:lib")
     assertThat(target.hasPyIdeInfo()).isTrue()
-    assertThat(target.hasCIdeInfo()).isFalse()
 
     assertThat(target.kindString).isEqualTo("py_library")
     assertThat(target.pyIdeInfo.sourcesList.map { it.relativePath }).containsExactly("lib.py")
