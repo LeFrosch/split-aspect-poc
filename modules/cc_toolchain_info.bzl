@@ -14,8 +14,19 @@ UNSUPPORTED_FEATURES = [
     "fdo_optimize",
 ]
 
-def _aspect_impl(target, ctx):
+def _aspect_guard(target, ctx):
+    """Returns true if the aspect should be applied to the current target."""
     if not cc_common.CcToolchainInfo in target:
+        return False
+
+    # targets build under exec configuration are most likely used as local tool
+    if intellij_common.is_exec_configuration(ctx):
+        return False
+
+    return True
+
+def _aspect_impl(target, ctx):
+    if not _aspect_guard(target, ctx):
         return [intellij_provider.CcToolchainInfo(present = False)]
 
     cc_toolchain = target[cc_common.CcToolchainInfo]

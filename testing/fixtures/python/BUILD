@@ -6,7 +6,7 @@ test_config(
         "@intellij_aspect//modules:py_info.bzl%intellij_py_info_aspect",
         "@intellij_aspect//intellij:aspect.bzl%intellij_info_aspect",
     ],
-    bazel = "@registry_bazel//:latest",
+    bazel = "@registry_bazel//:8_4_2",
     modules = ["//testing/rules:aspect_module"],
 )
 

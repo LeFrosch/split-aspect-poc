@@ -5,3 +5,9 @@ test_runner(
     fixture = "//testing/fixtures/cpp:builtin",
     test = "BuiltinRulesTest.kt",
 )
+
+test_runner(
+    name = "ToolDepTest",
+    fixture = "//testing/fixtures/cpp:tool",
+    test = "ToolDepTest.kt",
+)

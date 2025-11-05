@@ -6,7 +6,7 @@ test_config(
         "@intellij_aspect//modules:cc_info.bzl%intellij_cc_info_aspect",
         "@intellij_aspect//intellij:aspect.bzl%intellij_info_aspect",
     ],
-    bazel = "@registry_bazel//:latest",
+    bazel = "@registry_bazel//:8_4_2",
     modules = ["//testing/rules:aspect_module"],
 )
 
@@ -20,13 +20,30 @@ test_matrix(
     modules = [
         "@registry_rules_cc//:0_1_1",
         "@registry_rules_cc//:0_2_9",
+        "@registry_rules_cc//:0_2_14",
+    ],
+)
+
+test_config(
+    name = "bazel9",
+    aspects = [
+        "@intellij_aspect//modules:cc_info.bzl%intellij_cc_info_aspect",
+        "@intellij_aspect//intellij:aspect.bzl%intellij_info_aspect",
+    ],
+    bazel = "@registry_bazel//:9_0_0rc1",
+    modules = [
+        "//testing/rules:aspect_module",
+        "@registry_rules_cc//:0_2_14",
     ],
 )
 
 test_fixture(
     name = "simple",
     srcs = glob(["simple/**"]),
-    configs = [":matrix"],
+    configs = [
+        ":bazel9",
+        ":matrix",
+    ],
     strip_prefix = "simple",
     visibility = ["//testing/tests:__subpackages__"],
 )
@@ -34,7 +51,7 @@ test_fixture(
 test_fixture(
     name = "transition",
     srcs = glob(["transition/**"]),
-    configs = [":matrix"],
+    configs = [":bazel9"],
     strip_prefix = "transition",
     visibility = ["//testing/tests:__subpackages__"],
 )
@@ -44,5 +61,13 @@ test_fixture(
     srcs = glob(["builtin/**"]),
     configs = [":matrix"],
     strip_prefix = "builtin",
+    visibility = ["//testing/tests:__subpackages__"],
+)
+
+test_fixture(
+    name = "tool",
+    srcs = glob(["tool/**"]),
+    configs = [":bazel9"],
+    strip_prefix = "tool",
     visibility = ["//testing/tests:__subpackages__"],
 )

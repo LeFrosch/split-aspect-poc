@@ -63,8 +63,12 @@ def _aspect_guard(target, ctx):
     if ctx.rule.kind == "cc_proto_library":
         return False
 
-    # Go targets always provide CcInfo. Usually it's empty, but even if it isn't we don't handle it
+    # go targets always provide CcInfo, usually it's empty and even if it isn't we don't handle it
     if ctx.rule.kind.startswith("go_"):
+        return False
+
+    # targets build under exec configuration are most likely used as local tool
+    if intellij_common.is_exec_configuration(ctx):
         return False
 
     return True

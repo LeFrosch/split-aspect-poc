@@ -89,6 +89,10 @@ def _aspect(**kwargs):
         **kwargs
     )
 
+def _is_exec_configuration(ctx):
+    """Simple heuristic to if a context is building for the exec configuration."""
+    return "-exec" in ctx.genfiles_dir.path
+
 intellij_common = struct(
     TargetInfo = _IntelliJTargetInfo,
     struct = _struct,
@@ -99,4 +103,5 @@ intellij_common = struct(
     attr_as_list = _attr_as_list,
     attr_as_label_list = _attr_as_label_list,
     target_hash = _target_hash,
+    is_exec_configuration = _is_exec_configuration,
 )

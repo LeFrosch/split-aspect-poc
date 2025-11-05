@@ -1,4 +1,4 @@
-package com.intellij.aspect.testing.tests.general
+package com.intellij.aspect.testing.tests.cpp
 
 import com.google.common.truth.Truth.assertThat
 import com.intellij.aspect.testing.rules.AspectFixture
@@ -8,16 +8,15 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class TransitionTest {
+class ToolDepTest {
 
   @Rule
   @JvmField
   val aspect = AspectFixture()
 
   @Test
-  fun testFindTargets() {
-    val targets = aspect.findTargets("//:main")
-    assertThat(targets).hasSize(3)
-    assertThat(targets.map { it.key.configuration }.toSet()).hasSize(3)
+  fun testSkipToolUnderExecConfig() {
+    val targets = aspect.findTargets("//:tool")
+    assertThat(targets).hasSize(1)
   }
 }
