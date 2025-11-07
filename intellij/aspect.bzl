@@ -2,7 +2,7 @@ load("//common:artifact_location.bzl", "artifact_location")
 load("//common:common.bzl", "intellij_common")
 load("//common:dependencies.bzl", "intellij_deps")
 load("//modules:provider.bzl", "intellij_provider")
-load(":provider.bzl", "IntelliJInfo", "intellij_info")
+load(":provider.bzl", "IntelliJInfo", "intellij_info_builder")
 
 # compile time dependencies collected for every target
 COMPILE_TIME_DEPS = ["deps"]
@@ -16,20 +16,22 @@ def _get_build_file_location(ctx):
         intellij_common.label_is_external(ctx.label),
     )
 
-def _merge_dependencies(provider, ctx):
+def _merge_dependencies(builder, ctx):
     """Adds information from all dependencies' intellij info providers."""
     for name in dir(ctx.rule.attr):
         for dep in intellij_common.attr_as_label_list(ctx, name):
             if not IntelliJInfo in dep:
                 continue
 
-            intellij_info.update(provider, dep[IntelliJInfo])
+            intellij_info_builder.append(builder, dep[IntelliJInfo])
 
-def _serialize_dependencies(provider):
+def _serialize_dependencies(builder):
+    """Serializes all dependencies currently tracked by the builder."""
     return [
         struct(target = dep[intellij_common.TargetInfo].key, dependency_type = key)
-        for key, deps in provider.dependencies.items()
-        for dep in deps.to_list()
+        for key, list_of_sets in builder.dependencies.items()
+        for set in list_of_sets
+        for dep in set.to_list()
         if intellij_common.TargetInfo in dep
     ]
 
@@ -44,7 +46,7 @@ def _write_ide_info(target, ctx, info):
 
     return file
 
-def _merge_target_info(provider, target, ctx):
+def _merge_target_info(builder, target, ctx):
     """Adds information collected from the current target's module providers."""
     if not intellij_provider.any(target):
         return {}
@@ -70,27 +72,29 @@ def _merge_target_info(provider, target, ctx):
         ide_info[name] = target[module_provider].value
 
         # merge all information provided by the module provider into the main provider
-        intellij_info.update(provider, target[module_provider])
+        intellij_info_builder.append(builder, target[module_provider])
 
     # dependencies have to be serialized last because they might be updated by module providers
-    ide_info["deps"] = _serialize_dependencies(provider)
+    ide_info["deps"] = _serialize_dependencies(builder)
 
     # write the ide info to file and add the generated file to the appropriate output group
-    intellij_info.add_ide_info(provider, _write_ide_info(target, ctx, ide_info))
+    intellij_info_builder.append_ide_info(builder, _write_ide_info(target, ctx, ide_info))
 
 def _aspect_impl(target, ctx):
-    provider = intellij_info.create()
+    builder = intellij_info_builder.create()
 
-    intellij_info.add_deps(
-        provider,
+    intellij_info_builder.append_dependencies(
+        builder,
         intellij_deps.COMPILE_TIME,
         intellij_deps.collect(ctx, COMPILE_TIME_DEPS),
     )
 
-    _merge_target_info(provider, target, ctx)
-    _merge_dependencies(provider, ctx)
+    _merge_target_info(builder, target, ctx)
+    _merge_dependencies(builder, ctx)
 
-    return [provider, OutputGroupInfo(**provider.outputs)]
+    intellij_info = intellij_info_builder.build(builder)
+
+    return [intellij_info, OutputGroupInfo(**intellij_info.outputs)]
 
 intellij_info_aspect = intellij_common.aspect(
     implementation = _aspect_impl,

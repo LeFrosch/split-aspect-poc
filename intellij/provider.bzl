@@ -9,41 +9,48 @@ IntelliJInfo = provider(
 _IDE_INFO_FILE_OUTPUT_GROUP = "intellij-info"
 
 def _create():
-    """Creates an empty IntelliJInfo provider."""
+    """Creates a new builder. Optimisation for creating more efficient depsets."""
+    return struct(outputs = {}, dependencies = {})
+
+def _append_depset(dst, src):
+    """Appends every depset from the source dict[depset] to the destination dict[list[depset]]."""
+    for key in list(src):
+        if key in dst:
+            dst[key].append(src[key])
+        else:
+            dst[key] = [src[key]]
+
+def _append(builder, src):
+    """Appends all data from the source to the builder. Source must be either an IntellijInfo provider or a module provider."""
+    _append_depset(builder.outputs, src.outputs)
+    _append_depset(builder.dependencies, src.dependencies)
+
+def _append_ide_info(builder, file):
+    """Appends a intellij ide info file."""
+    _append_depset(builder.outputs, {_IDE_INFO_FILE_OUTPUT_GROUP: depset([file])})
+
+def _append_dependencies(builder, group, deps):
+    """Appends all dependencies to the specified dependency group."""
+    _append_depset(builder.dependencies, {group: deps})
+
+def _build_depset(src):
+    """Builds one dict[depset] from the source dict[list[depset]]."""
+    return {
+        key: depset(transitive = value)
+        for key, value in src.items()
+    }
+
+def _build(builder):
+    """Builds a new IntelliJInfo provider."""
     return IntelliJInfo(
-        outputs = {},
-        dependencies = {},
+        outputs = _build_depset(builder.outputs),
+        dependencies = _build_depset(builder.outputs),
     )
 
-def _update_depset_dict(it, other):
-    """Merges two dictionaries defining multiple depsets."""
-    for key in list(other):
-        if key in it:
-            it[key] = depset(transitive = [it[key], other[key]])
-        else:
-            it[key] = other[key]
-
-def _update(it, other):
-    """Updates this provider. Other must be either an IntellijInfo provider or a module provider."""
-    _update_depset_dict(it.outputs, other.outputs)
-    _update_depset_dict(it.dependencies, other.dependencies)
-
-def _add_ide_info(it, file):
-    """Updates this provider. Adds a intellij ide info file."""
-    _update_depset_dict(it.outputs, {_IDE_INFO_FILE_OUTPUT_GROUP: depset([file])})
-
-def _get_ide_info(it):
-    """Gets the transitive intellij ide info file depset."""
-    return it.outputs.get(_IDE_INFO_FILE_OUTPUT_GROUP, depset())
-
-def _add_deps(it, group, deps):
-    """Updates this provider. Adds all dependencies to the specified dependency group."""
-    _update_depset_dict(it.dependencies, {group: deps})
-
-intellij_info = struct(
+intellij_info_builder = struct(
     create = _create,
-    update = _update,
-    add_ide_info = _add_ide_info,
-    get_ide_info = _get_ide_info,
-    add_deps = _add_deps,
+    append = _append,
+    append_ide_info = _append_ide_info,
+    append_dependencies = _append_dependencies,
+    build = _build,
 )
