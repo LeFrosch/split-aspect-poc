@@ -91,6 +91,11 @@ message DartIdeInfo {
   repeated ArtifactLocation sources = 1;
 }
 
+message JavaIdeInfo {
+  repeated ArtifactLocation sources = 1;
+  repeated ArtifactLocation generated_sources = 2;
+}
+
 message CToolchainIdeInfo {
   string target_name = 1;
   repeated string cpp_option = 2;
@@ -151,4 +156,5 @@ message TargetIdeInfo {
   JsIdeInfo js_ide_info = 150;
   TsIdeInfo ts_ide_info = 160;
   DartIdeInfo dart_ide_info = 170;
+  JavaIdeInfo java_ide_info = 180;
 }
