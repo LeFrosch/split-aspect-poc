@@ -25,7 +25,7 @@ class BuildFileTest {
   @Test
   fun testLibBuildFile() {
     val target = aspect.findTarget("//lib:lib")
-    assertThat(target.buildFileArtifactLocation.relativePath).isEqualTo("lib/BUILD.fix")
+    assertThat(target.buildFileArtifactLocation.relativePath).isEqualTo("lib/BUILD")
     assertThat(target.buildFileArtifactLocation.rootPath).isEmpty()
     assertThat(target.buildFileArtifactLocation.isSource).isTrue()
   }
