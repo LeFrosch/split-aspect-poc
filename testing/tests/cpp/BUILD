@@ -11,3 +11,9 @@ test_runner(
     fixture = "//testing/fixtures/cpp:tool",
     test = "ToolDepTest.kt",
 )
+
+test_runner(
+    name = "XcodeTest",
+    fixture = "//testing/fixtures/cpp:simple",
+    test = "XcodeTest.kt",
+)

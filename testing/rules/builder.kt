@@ -46,7 +46,7 @@ fun main(args: Array<String>) {
   require(files.isNotEmpty()) { "no files were generated" }
 
   val builder = BuilderOutput.newBuilder()
-  input.modulesList.map { "${it.name}: ${it.version}" }.forEach(builder::addModules)
+  input.modulesList.map { "${it.name}:${it.version}" }.forEach(builder::addModules)
   files.map(::readInfoFile).forEach(builder::addTargets)
   builder.bazelVersion = input.bazel.version
 
