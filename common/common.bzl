@@ -35,6 +35,15 @@ def _attr_as_str(ctx, name):
 
     return value
 
+def _attr_as_target(ctx, name):
+    """Returns the attr as a target. Or the empty None if the attr is invalid."""
+    value = getattr(ctx.rule.attr, name, None)
+
+    if not value or type(value) != "Target":
+        return None
+
+    return value
+
 def _attr_as_list(ctx, name):
     """Returns the attr as a list. Or the empty list if the attr is invalid."""
     value = getattr(ctx.rule.attr, name, None)
@@ -100,6 +109,7 @@ intellij_common = struct(
     label_is_external = _label_is_external,
     label_to_string = _label_to_string,
     attr_as_str = _attr_as_str,
+    attr_as_target = _attr_as_target,
     attr_as_list = _attr_as_list,
     attr_as_label_list = _attr_as_label_list,
     target_hash = _target_hash,

@@ -16,17 +16,12 @@
 package com.intellij.aspect.testing.rules
 
 import com.google.devtools.intellij.ideinfo.IdeInfo.TargetKey
-import java.nio.file.Path
 
-/**
- * Converts a relative path to a test relative path. The location of the
- * test binary is used as the base path.
- */
-fun testRelativePath(relativePath: String): String {
-  require(!relativePath.startsWith('/'))
-  val basePath = Path.of(System.getenv("TEST_BINARY")).parent
-  return basePath.resolve(relativePath).toString()
-}
+fun isMacOS(): Boolean = System.getProperty("os.name").lowercase().contains("mac")
+
+fun isLinux(): Boolean = System.getProperty("os.name").lowercase().contains("linux")
+
+fun isWindows(): Boolean = System.getProperty("os.name").lowercase().contains("windows")
 
 /**
  * Calculates the name of the intellij-info file for that target. Reflects the
@@ -36,7 +31,7 @@ fun intellijInfoFileName(key: TargetKey): String {
   val name = key.label.substringAfterLast(':')
 
   val parts = listOf(key.label, key.configuration) + key.aspectIdsList
-  val hash  = parts.joinToString(".").hashCode()
+  val hash = parts.joinToString(".").hashCode()
 
   return "$name-$hash.intellij-info.txt"
 }

@@ -17,6 +17,11 @@ import "private/proto/common.proto";
 
 option java_package = "com.google.devtools.intellij.ideinfo";
 
+message XCodeIdeInfo {
+  string xcode_version = 1;
+  string default_macos_sdk_version = 2;
+}
+
 message CIdeInfo {
   // Information collected from rules_cc rule attributes.
   message RuleContext {
@@ -137,6 +142,7 @@ message TargetIdeInfo {
 
   CIdeInfo c_ide_info = 120;
   CToolchainIdeInfo c_toolchain_ide_info = 121;
+  XCodeIdeInfo xcode_ide_info = 122;
 
   PyIdeInfo py_ide_info = 130;
   JsIdeInfo js_ide_info = 150;

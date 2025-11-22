@@ -40,7 +40,13 @@ class AspectFixture : ExternalResource() {
       override fun evaluate() {
         for (file in files) {
           output = loadAspectFixture(file)
-          base.evaluate()
+
+          try {
+            base.evaluate()
+          } catch (e: AssertionError) {
+            val configuration = (listOf("bazel:${output.bazelVersion}") + output.modulesList).joinToString(separator = ", ")
+            throw AssertionError("test failed in configuration: [$configuration]", e)
+          }
         }
       }
     }
@@ -85,6 +91,14 @@ class AspectFixture : ExternalResource() {
 
     return target.pyIdeInfo
   }
+
+  fun bazelVersion(min: Int? = null, max: Int? = null): Boolean {
+    val (major, _, _) = output.bazelVersion.split(".")
+    if (min != null && min > major.toInt()) return false
+    if (max != null && max < major.toInt()) return false
+
+    return true
+  }
 }
 
 @Throws(IOException::class)
@@ -116,11 +130,15 @@ private fun matchTarget(
  * absolute with regard to that repo.
  */
 private fun matchLabel(key: TargetKey, label: String, externalRepo: String?): Boolean {
-  if (externalRepo != null) {
-    return key.label.endsWith("$externalRepo$label")
+  if (externalRepo == null) {
+    return key.label == label
+  }
+  if (!key.label.startsWith("@")) {
+    return false
   }
 
-  return key.label == label
+  val (repo, relativeLabel) = key.label.split("//")
+  return repo.trimStart('@').trimEnd('+', '~') == externalRepo && "//$relativeLabel" == label
 }
 
 /**
