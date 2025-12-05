@@ -90,9 +90,11 @@ private fun generateModuleFile(project: Path, dependencies: Map<String, Path>) {
 @Throws(IOException::class)
 private fun runBazelBuild(bazelExecutable: String, project: Path, aspects: List<String>): List<Path> {
   val bepFile = Files.createTempFile(Path.of(""), "bazel-build-", ".bep.json").toAbsolutePath()
+  val outputDir = Files.createTempDirectory(Path.of(""), "bazel-output-").toAbsolutePath()
 
   val cmd = listOf(
     Path.of(bazelExecutable).toAbsolutePath().toString(),
+    "--output_user_root=$outputDir",
     "build",
     "//...",
     "--aspects=" + aspects.joinToString(","),
