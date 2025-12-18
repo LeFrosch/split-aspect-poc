@@ -15,23 +15,8 @@
  */
 package com.intellij.aspect.testing.rules
 
-import com.google.devtools.intellij.ideinfo.IdeInfo.TargetKey
-
 fun isMacOS(): Boolean = System.getProperty("os.name").lowercase().contains("mac")
 
 fun isLinux(): Boolean = System.getProperty("os.name").lowercase().contains("linux")
 
 fun isWindows(): Boolean = System.getProperty("os.name").lowercase().contains("windows")
-
-/**
- * Calculates the name of the intellij-info file for that target. Reflects the
- * logic in _write_ide_info of aspect.bzl.
- */
-fun intellijInfoFileName(key: TargetKey): String {
-  val name = key.label.substringAfterLast(':')
-
-  val parts = listOf(key.label, key.configuration) + key.aspectIdsList
-  val hash = parts.joinToString(".").hashCode()
-
-  return "$name-$hash.intellij-info.txt"
-}
