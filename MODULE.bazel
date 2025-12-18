@@ -22,6 +22,7 @@ maven.install(
         "com.google.errorprone:error_prone_annotations:2.23.0",
         "com.google.guava:guava:33.0.0-jre",
         "com.fasterxml.jackson.core:jackson-databind:2.20.1",
+        "org.jetbrains.kotlinx:kotlinx-cli-jvm:0.3.6",
     ],
     known_contributing_modules = [
         "bazel_worker_java",

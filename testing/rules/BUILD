@@ -21,7 +21,7 @@ kt_jvm_library(
     srcs = ["builder.kt"],
     deps = [
         ":builder_java_proto",
-        "@maven//:com_fasterxml_jackson_core_jackson_databind",
+        "//private/lib:exec",
         "@protobuf//:protobuf_java",
     ],
 )

@@ -15,24 +15,20 @@
  */
 package com.intellij.aspect.testing.rules
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.devtools.intellij.ideinfo.IdeInfo.TargetIdeInfo
 import com.google.protobuf.TextFormat
+import com.intellij.aspect.private.lib.executeBuild
+import com.intellij.aspect.private.lib.executeCommand
 import com.intellij.aspect.testing.rules.BuilderProto.BuilderInput
 import com.intellij.aspect.testing.rules.BuilderProto.BuilderOutput
-import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.InputStreamReader
-import java.net.URI
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
-import kotlin.io.path.toPath
 
-private const val OUTPUT_GROUP = "intellij-info"
-
-private val MAPPER = ObjectMapper()
+private val OUTPUT_GROUPS = listOf("intellij-info")
 
 fun main(args: Array<String>) {
   val input = readInput(args)
@@ -42,7 +38,17 @@ fun main(args: Array<String>) {
 
   generateModuleFile(project, modules)
 
-  val files = runBazelBuild(input.bazel.executable, project, input.aspectsList)
+  // create a relative output root to not leave the sandbox
+  val outputDir = Files.createTempDirectory(Path.of("."), "bazel-output-").toAbsolutePath()
+
+  val files = executeBuild(
+    workspaceRoot = project,
+    startupFlags = listOf("--output_user_root=$outputDir"),
+    bazelExecutable = Path.of(input.bazel.executable).toAbsolutePath().toString(),
+    aspects = input.aspectsList,
+    outputGroups = OUTPUT_GROUPS,
+    targets = listOf("//..."),
+  )
   require(files.isNotEmpty()) { "no files were generated" }
 
   val builder = BuilderOutput.newBuilder()
@@ -66,7 +72,7 @@ private fun readInput(args: Array<String>): BuilderInput {
 private fun extractTar(archive: String): Path {
   val directory = Files.createTempDirectory(Path.of("."), "archive").toAbsolutePath()
 
-  execute(
+  executeCommand(
     "tar",
     "-xzf", archive,
     "-C", directory.toString(),
@@ -84,61 +90,6 @@ private fun generateModuleFile(project: Path, dependencies: Map<String, Path>) {
       writer.appendLine("bazel_dep(name = '$name')")
       writer.appendLine("local_path_override(module_name = '$name', path = '$path')")
     }
-  }
-}
-
-@Throws(IOException::class)
-private fun runBazelBuild(bazelExecutable: String, project: Path, aspects: List<String>): List<Path> {
-  val bepFile = Files.createTempFile(Path.of(""), "bazel-build-", ".bep.json").toAbsolutePath()
-  val outputDir = Files.createTempDirectory(Path.of(""), "bazel-output-").toAbsolutePath()
-
-  val cmd = listOf(
-    Path.of(bazelExecutable).toAbsolutePath().toString(),
-    "--output_user_root=$outputDir",
-    "build",
-    "//...",
-    "--aspects=" + aspects.joinToString(","),
-    "--build_event_json_file=$bepFile",
-    "--output_groups=$OUTPUT_GROUP",
-  )
-
-  execute(cmd, pwd = project)
-
-  if (!Files.exists(bepFile)) {
-    throw IOException("bep file was not created")
-  }
-
-  return Files.newBufferedReader(bepFile).use { reader ->
-    reader.lineSequence().flatMap(::parseBepEvent).toList()
-  }
-}
-
-private fun parseBepEvent(event: String): List<Path> {
-  val root = MAPPER.readTree(event)
-  val files = root.get("namedSetOfFiles")?.get("files") ?: return emptyList()
-
-  return files.mapNotNull { it.get("uri")?.asText() }.map { URI(it).toPath() }
-}
-
-@Throws(IOException::class)
-private fun execute(vararg cmd: String) = execute(cmd.toList(), Path.of("."))
-
-@Throws(IOException::class)
-private fun execute(cmd: List<String>, pwd: Path) {
-  val process = ProcessBuilder(cmd)
-    .directory(pwd.toFile())
-    .redirectErrorStream(true)
-    .start()
-
-  val stream = ByteArrayOutputStream()
-  process.inputStream.use { it.copyTo(stream) }
-
-  val exitCode = process.waitFor()
-  if (exitCode != 0) {
-    stream.writeTo(System.err)
-    System.err.flush()
-
-    throw IOException("command failed: ${cmd.joinToString(" ")}")
   }
 }
 
