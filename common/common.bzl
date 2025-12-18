@@ -30,7 +30,7 @@ def _attr_as_str(ctx, name):
     """Returns the attr as a string. Or the empty string if the attr is invalid."""
     value = getattr(ctx.rule.attr, name, None)
 
-    if not value or type(value) != "str":
+    if not value or type(value) != "string":
         return ""
 
     return value

@@ -25,6 +25,8 @@ def _collect_rule_context(ctx):
         headers = artifact_location.from_attr(ctx, "hdrs"),
         textual_headers = artifact_location.from_attr(ctx, "textual_hdrs"),
         copts = expand_make_variables(ctx, True, intellij_common.attr_as_list(ctx, "copts")),
+        conlyopts = expand_make_variables(ctx, True, intellij_common.attr_as_list(ctx, "conlyopts")),
+        cxxopts = expand_make_variables(ctx, True, intellij_common.attr_as_list(ctx, "cxxopts")),
         args = expand_make_variables(ctx, True, intellij_common.attr_as_list(ctx, "args")),
         include_prefix = intellij_common.attr_as_str(ctx, "include_prefix"),
         strip_include_prefix = intellij_common.attr_as_str(ctx, "strip_include_prefix"),
