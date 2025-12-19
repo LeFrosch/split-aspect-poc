@@ -25,9 +25,12 @@ def _append(builder, src):
     _append_depset(builder.outputs, src.outputs)
     _append_depset(builder.dependencies, src.dependencies)
 
-def _append_ide_info(builder, file):
-    """Appends a intellij ide info file."""
-    _append_depset(builder.outputs, {_IDE_INFO_FILE_OUTPUT_GROUP: depset([file])})
+def _append_ide_infos(builder, files):
+    """Appends a list intellij ide info files."""
+    if not files:
+        return
+
+    _append_depset(builder.outputs, {_IDE_INFO_FILE_OUTPUT_GROUP: depset(files)})
 
 def _append_dependencies(builder, group, deps):
     """Appends all dependencies to the specified dependency group."""
@@ -50,7 +53,7 @@ def _build(builder):
 intellij_info_builder = struct(
     create = _create,
     append = _append,
-    append_ide_info = _append_ide_info,
+    append_ide_infos = _append_ide_infos,
     append_dependencies = _append_dependencies,
     build = _build,
 )

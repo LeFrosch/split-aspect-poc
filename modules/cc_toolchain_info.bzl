@@ -1,6 +1,8 @@
 load("@bazel_tools//tools/build_defs/cc:action_names.bzl", "ACTION_NAMES")
 load("@rules_cc//cc:defs.bzl", "cc_common")
+load("@rules_cc//cc:find_cc_toolchain.bzl", "CC_TOOLCHAIN_TYPE")
 load("//common:common.bzl", "intellij_common")
+load("//common:ide_info.bzl", "ide_info")
 load(":provider.bzl", "intellij_provider")
 
 # Defensive list of features that can appear in the C++ toolchain, but which we
@@ -71,24 +73,26 @@ def _aspect_impl(target, ctx):
         action_name = ACTION_NAMES.cpp_compile,
     )
 
-    return [intellij_provider.CcToolchainInfo(
-        present = True,
-        outputs = {},
-        value = intellij_common.struct(
-            built_in_include_directory = [str(it) for it in cc_toolchain.built_in_include_directories],
-            c_option = c_options,
-            cpp_option = cpp_options,
-            c_compiler = c_compiler,
-            cpp_compiler = cpp_compiler,
-            target_name = cc_toolchain.target_gnu_system_name,
-            compiler_name = cc_toolchain.compiler,
-            sysroot = cc_toolchain.sysroot,
-        ),
-        dependencies = {},
+    info = intellij_common.struct(
+        built_in_include_directory = [str(it) for it in cc_toolchain.built_in_include_directories],
+        c_option = c_options,
+        cpp_option = cpp_options,
+        c_compiler = c_compiler,
+        cpp_compiler = cpp_compiler,
+        target_name = cc_toolchain.target_gnu_system_name,
+        compiler_name = cc_toolchain.compiler,
+        sysroot = cc_toolchain.sysroot,
+    )
+
+    return [intellij_provider.create_toolchain(
+        provider = intellij_provider.CcToolchainInfo,
+        info_file = ide_info.write_toolchain(target, ctx, "c_toolchain_ide_info", info),
+        owner = target,
     )]
 
 intellij_cc_toolchain_info_aspect = intellij_common.aspect(
     implementation = _aspect_impl,
     fragments = ["cpp"],
     provides = [intellij_provider.CcToolchainInfo],
+    toolchains_aspects = [str(CC_TOOLCHAIN_TYPE)],
 )

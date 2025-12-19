@@ -1,4 +1,4 @@
-def _intellij_info_provider():
+def _intellij_module_provider():
     return provider(
         doc = "Module-specific IntelliJ metadata for a single target.",
         fields = {
@@ -6,29 +6,46 @@ def _intellij_info_provider():
             "dependencies": "dict[int, depset[Target]] - Direct dependencies grouped by dependency type.",
             "value": "struct - Module-specific value serializable to protobuf.",
             "present": "bool - Whether the provider is present on this target.",
+            "toolchains": "list[ToolchainAspectProvider] - Toolchains used by the specified target.",
         },
     )
 
-_IntelliJCcInfo = _intellij_info_provider()
-_IntelliJCcToolchainInfo = _intellij_info_provider()
-_IntelliJXCodeInfo = _intellij_info_provider()
-_IntelliJPyInfo = _intellij_info_provider()
+_IntelliJCcInfo = _intellij_module_provider()
+_IntelliJPyInfo = _intellij_module_provider()
 
-_PROVIDERS = {
+_MODULE_PROVIDERS = {
     "c_ide_info": _IntelliJCcInfo,
-    "c_toolchain_ide_info": _IntelliJCcToolchainInfo,
-    "xcode_ide_info": _IntelliJXCodeInfo,
     "py_ide_info": _IntelliJPyInfo,
 }
 
-def _has_any_provider(target):
-    for provider in _PROVIDERS.values():
+def _intellij_toolchain_provider():
+    return provider(
+        doc = "Toolchain-specific IntelliJ metadata for a single toolchain target.",
+        fields = {
+            "info_file": "File - The intellij-info.txt that descirbes the toolchain.",
+            "owner": "Target - The target the produced this toolchain",
+            "present": "bool - Whether the provider is present on this target.",
+        },
+    )
+
+_IntelliJCcToolchainInfo = _intellij_toolchain_provider()
+_IntelliJXCodeToolchainInfo = _intellij_module_provider()
+
+_TOOLCHAIN_PROVIDERS = [
+    _IntelliJCcToolchainInfo,
+    _IntelliJXCodeToolchainInfo,
+]
+
+def _has_module_provider(target):
+    """Returns whether the target has any module provider."""
+    for provider in _MODULE_PROVIDERS.values():
         if provider in target and target[provider].present:
             return True
 
     return False
 
 def _get_provider_or_none(target, provider):
+    """Gets the specified module or toolchain provider from the target."""
     if not provider in target:
         return None
 
@@ -38,12 +55,34 @@ def _get_provider_or_none(target, provider):
 
     return instance
 
+def _create(provider, value, outputs = None, dependencies = None, toolchains = None):
+    """Creats a new instance of a module provider."""
+    return provider(
+        present = True,
+        value = value,
+        outputs = outputs or {},
+        dependencies = dependencies or {},
+        toolchains = toolchains or [],
+    )
+
+def _create_toolchain(provider, info_file, owner):
+    """Creates a new instance of a toolchain provider."""
+    return provider(
+        present = True,
+        info_file = info_file,
+        owner = owner,
+    )
+
 intellij_provider = struct(
     CcInfo = _IntelliJCcInfo,
     CcToolchainInfo = _IntelliJCcToolchainInfo,
-    XCodeInfo = _IntelliJXCodeInfo,
+    XCodeToolchainInfo = _IntelliJXCodeToolchainInfo,
     PyInfo = _IntelliJPyInfo,
-    ALL = _PROVIDERS,
-    any = _has_any_provider,
+    MODULE_MAP = _MODULE_PROVIDERS,
+    TOOLCHAINS = _TOOLCHAIN_PROVIDERS,
+    ALL = _MODULE_PROVIDERS.values() + _TOOLCHAIN_PROVIDERS,
+    has_module = _has_module_provider,
     get = _get_provider_or_none,
+    create = _create,
+    create_toolchain = _create_toolchain,
 )

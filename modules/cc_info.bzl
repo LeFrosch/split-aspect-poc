@@ -83,8 +83,8 @@ def _aspect_impl(target, ctx):
     compile_files = target[OutputGroupInfo].compilation_outputs if hasattr(target[OutputGroupInfo], "compilation_outputs") else depset([])
     resolve_files = target[CcInfo].compilation_context.headers
 
-    return [intellij_provider.CcInfo(
-        present = True,
+    return [intellij_provider.create(
+        provider = intellij_provider.CcInfo,
         outputs = {
             "intellij-compile-cpp": compile_files,
             "intellij-resolve-cpp": resolve_files,
@@ -100,6 +100,7 @@ def _aspect_impl(target, ctx):
                 toolchain_types = [CC_TOOLCHAIN_TYPE],
             ),
         },
+        toolchains = intellij_deps.find_toolchains(ctx, CC_TOOLCHAIN_TYPE),
     )]
 
 intellij_cc_info_aspect = intellij_common.aspect(

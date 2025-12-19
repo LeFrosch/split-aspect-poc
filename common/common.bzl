@@ -78,12 +78,6 @@ _intellij_target_info_aspect = aspect(
     provides = [_IntelliJTargetInfo],
 )
 
-def _target_hash(target):
-    """Creates a unique hash for the target based on its key."""
-    key = target[_IntelliJTargetInfo].key
-    parts = [key.label, getattr(key, "configuration", "")] + key.aspect_ids
-    return hash(".".join(parts))
-
 def _aspect(**kwargs):
     """A replacement for the standard `aspect` function that modifies some of the arguments."""
     requires = kwargs.pop("requires", [])
@@ -112,6 +106,5 @@ intellij_common = struct(
     attr_as_target = _attr_as_target,
     attr_as_list = _attr_as_list,
     attr_as_label_list = _attr_as_label_list,
-    target_hash = _target_hash,
     is_exec_configuration = _is_exec_configuration,
 )
