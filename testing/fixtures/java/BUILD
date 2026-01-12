@@ -1,0 +1,33 @@
+load("//testing/rules:defs.bzl", "test_config", "test_fixture", "test_matrix")
+
+test_config(
+    name = "base",
+    aspects = [
+        "@intellij_aspect//modules:java_info.bzl%intellij_java_info_aspect",
+        "@intellij_aspect//intellij:aspect.bzl%intellij_info_aspect",
+    ],
+    bazel = "@registry_bazel//:8_4_2",
+    modules = ["//testing/rules:aspect_module"],
+)
+
+test_matrix(
+    name = "matrix",
+    base = ":base",
+    bazel = [
+        "@registry_bazel//:7_7_0",
+        "@registry_bazel//:8_4_2",
+        "@registry_bazel//:9_0_0rc3",
+    ],
+    modules = [
+        "@registry_rules_java//:8_16_1",
+        "@registry_rules_java//:9_3_0",
+    ],
+)
+
+test_fixture(
+    name = "simple",
+    srcs = glob(["simple/**"]),
+    configs = [":matrix"],
+    strip_prefix = "simple",
+    visibility = ["//testing/tests:__subpackages__"],
+)

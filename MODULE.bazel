@@ -44,10 +44,14 @@ registry.install(
         "0.2.9",
         "0.2.14",
     ],
+    rules_java = [
+        "8.16.1",
+        "9.3.0",
+    ],
     rules_python = [
         "1.4.0",
         "1.6.3",
         "1.7.0",
     ],
 )
-use_repo(registry, "registry_bazel", "registry_rules_cc", "registry_rules_python")
+use_repo(registry, "registry_bazel", "registry_rules_cc", "registry_rules_java", "registry_rules_python")
