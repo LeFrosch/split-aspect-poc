@@ -18,8 +18,9 @@ test_matrix(
         "@registry_bazel//:8_4_2",
     ],
     modules = [
-        "@registry_rules_python//:1_0_0",
+        "@registry_rules_python//:1_4_0",
         "@registry_rules_python//:1_6_3",
+        "@registry_rules_python//:1_7_0",
     ],
 )
 

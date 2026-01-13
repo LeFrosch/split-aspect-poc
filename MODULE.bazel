@@ -45,8 +45,9 @@ registry.install(
         "0.2.14",
     ],
     rules_python = [
-        "1.0.0",
+        "1.4.0",
         "1.6.3",
+        "1.7.0",
     ],
 )
 use_repo(registry, "registry_bazel", "registry_rules_cc", "registry_rules_python")
