@@ -29,11 +29,11 @@ def _intellij_toolchain_provider():
     )
 
 _IntelliJCcToolchainInfo = _intellij_toolchain_provider()
-_IntelliJXCodeToolchainInfo = _intellij_module_provider()
+_IntelliJXcodeToolchainInfo = _intellij_toolchain_provider()
 
 _TOOLCHAIN_PROVIDERS = [
     _IntelliJCcToolchainInfo,
-    _IntelliJXCodeToolchainInfo,
+    _IntelliJXcodeToolchainInfo,
 ]
 
 def _has_module_provider(target):
@@ -76,7 +76,7 @@ def _create_toolchain(provider, info_file, owner):
 intellij_provider = struct(
     CcInfo = _IntelliJCcInfo,
     CcToolchainInfo = _IntelliJCcToolchainInfo,
-    XCodeToolchainInfo = _IntelliJXCodeToolchainInfo,
+    XcodeToolchainInfo = _IntelliJXcodeToolchainInfo,
     PyInfo = _IntelliJPyInfo,
     MODULE_MAP = _MODULE_PROVIDERS,
     TOOLCHAINS = _TOOLCHAIN_PROVIDERS,

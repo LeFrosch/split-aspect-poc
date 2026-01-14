@@ -18,6 +18,7 @@ package com.intellij.aspect.testing.rules
 import com.google.devtools.build.runfiles.Runfiles
 import com.google.devtools.intellij.ideinfo.IdeInfo.*
 import com.intellij.aspect.testing.rules.BuilderProto.BuilderOutput
+import org.junit.AssumptionViolatedException
 import org.junit.rules.ExternalResource
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
@@ -46,6 +47,8 @@ class AspectFixture : ExternalResource() {
           } catch (e: AssertionError) {
             val configuration = (listOf("bazel:${output.bazelVersion}") + output.modulesList).joinToString(separator = ", ")
             throw AssertionError("test failed in configuration: [$configuration]", e)
+          } catch (_: AssumptionViolatedException) {
+            continue
           }
         }
       }

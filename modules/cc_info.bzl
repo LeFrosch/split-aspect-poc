@@ -107,5 +107,6 @@ intellij_cc_info_aspect = intellij_common.aspect(
     implementation = _aspect_impl,
     provides = [intellij_provider.CcInfo],
     requires = [intellij_cc_toolchain_info_aspect],
+    required_aspect_providers = [[intellij_provider.XcodeToolchainInfo]],
     toolchains_aspects = [str(CC_TOOLCHAIN_TYPE)],
 )

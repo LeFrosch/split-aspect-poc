@@ -12,5 +12,5 @@ test_runner(
 
 test_runner(
     fixture = "//testing/fixtures/cpp:simple",
-    test = "XcodeTest.kt",
+    test = "ToolchainTest.kt",
 )
