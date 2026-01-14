@@ -5,3 +5,4 @@ MODULE.bazel.lock
 # IntelliJ files
 .ijwb/
 .clwb/
+.idea/

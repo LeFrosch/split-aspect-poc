@@ -3,7 +3,7 @@ load("//testing/rules:defs.bzl", "test_config", "test_fixture", "test_matrix")
 test_config(
     name = "base",
     aspects = [
-        "@intellij_aspect//modules:py_info.bzl%intellij_py_info_aspect",
+        "@intellij_aspect//modules:java_info.bzl%intellij_java_info_aspect",
         "@intellij_aspect//intellij:aspect.bzl%intellij_info_aspect",
     ],
     bazel = "@registry_bazel//:8_4_2",
@@ -16,11 +16,11 @@ test_matrix(
     bazel = [
         "@registry_bazel//:7_7_0",
         "@registry_bazel//:8_4_2",
+        "@registry_bazel//:9_0_0rc3",
     ],
     modules = [
-        "@registry_rules_python//:1_4_0",
-        "@registry_rules_python//:1_6_3",
-        "@registry_rules_python//:1_7_0",
+        "@registry_rules_java//:8_16_1",
+        "@registry_rules_java//:9_3_0",
     ],
 )
 
@@ -29,13 +29,5 @@ test_fixture(
     srcs = glob(["simple/**"]),
     configs = [":matrix"],
     strip_prefix = "simple",
-    visibility = ["//testing/tests:__subpackages__"],
-)
-
-test_fixture(
-    name = "args",
-    srcs = glob(["args/**"]),
-    configs = [":matrix"],
-    strip_prefix = "args",
     visibility = ["//testing/tests:__subpackages__"],
 )
