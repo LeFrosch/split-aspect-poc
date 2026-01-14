@@ -42,8 +42,8 @@ def _aspect_impl(target, ctx):
 
     # TODO: port python get_code_generator_rule_names
 
-    return [intellij_provider.PyInfo(
-        present = True,
+    return [intellij_provider.create(
+        provider = intellij_provider.PyInfo,
         outputs = {
             "intellij-compile-py": to_build,
             "intellij-resolve-py": to_build,
@@ -56,7 +56,6 @@ def _aspect_impl(target, ctx):
             args = expand_make_variables(ctx, False, intellij_common.attr_as_list(ctx, "args")),
             imports = intellij_common.attr_as_list(ctx, "imports"),
         ),
-        dependencies = {},
     )]
 
 intellij_py_info_aspect = intellij_common.aspect(
