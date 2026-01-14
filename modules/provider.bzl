@@ -22,7 +22,7 @@ def _intellij_toolchain_provider():
     return provider(
         doc = "Toolchain-specific IntelliJ metadata for a single toolchain target.",
         fields = {
-            "info_file": "File - The intellij-info.txt that descirbes the toolchain.",
+            "info_file": "File - The intellij-info.txt that describes the toolchain.",
             "owner": "Target - The target the produced this toolchain",
             "present": "bool - Whether the provider is present on this target.",
         },
@@ -56,7 +56,7 @@ def _get_provider_or_none(target, provider):
     return instance
 
 def _create(provider, value, outputs = None, dependencies = None, toolchains = None):
-    """Creats a new instance of a module provider."""
+    """Creates a new instance of a module provider."""
     return provider(
         present = True,
         value = value,

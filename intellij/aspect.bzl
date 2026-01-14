@@ -36,10 +36,10 @@ def _collect_toolchain_info(target):
 def _merge_target_info(builder, target, ctx):
     """Adds information collected from the current target's module providers."""
 
-    # for backwards compatability with Bazel 8 and below, toolchains are dependencies
+    # for backwards compatibility with Bazel 8 and below, toolchains are dependencies
     intellij_info_builder.append_ide_infos(builder, [it.info_file for it in _collect_toolchain_info(target)])
 
-    # do not generate a intellij-info.txt if there is no lanaguge module attachted
+    # do not generate a intellij-info.txt if there is no language module attached
     if not intellij_provider.has_module(target):
         return {}
 

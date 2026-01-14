@@ -45,6 +45,6 @@ class DeployTest {
     val aspectFile = path.resolve("intellij").resolve("aspect.bzl")
     val aspectText = Files.readString(aspectFile)
 
-    assertThat(aspectText).contains("load(\"//aspect/location/common:artifact_location.bzl\"")
+    assertThat(aspectText).contains("load(\"//aspect/location/common:common.bzl\"")
   }
 }
