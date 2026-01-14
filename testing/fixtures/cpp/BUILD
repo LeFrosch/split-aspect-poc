@@ -32,7 +32,7 @@ test_config(
         "@intellij_aspect//modules:cc_info.bzl%intellij_cc_info_aspect",
         "@intellij_aspect//intellij:aspect.bzl%intellij_info_aspect",
     ],
-    bazel = "@registry_bazel//:9_0_0rc3",
+    bazel = "@registry_bazel//:9_0_0rc5",
     modules = [
         "//testing/rules:aspect_module",
         "@registry_rules_cc//:0_2_14",

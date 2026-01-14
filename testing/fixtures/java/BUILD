@@ -16,7 +16,7 @@ test_matrix(
     bazel = [
         "@registry_bazel//:7_7_0",
         "@registry_bazel//:8_4_2",
-        "@registry_bazel//:9_0_0rc3",
+        "@registry_bazel//:9_0_0rc5",
     ],
     modules = [
         "@registry_rules_java//:8_16_1",
