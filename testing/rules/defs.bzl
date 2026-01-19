@@ -10,7 +10,7 @@ test_fixture = _test_fixture
 def _derive_test_class(test):
     """
     Derives the full test_class path from the current package and naming
-    convention. All tests need to follow the test package nameing convetion.
+    convention. All tests need to follow the test package naming convention.
     """
 
     class_name = test.removesuffix(".kt")
