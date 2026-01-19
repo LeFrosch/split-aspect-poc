@@ -51,7 +51,7 @@ def _config_hash(config):
 
     return hash(".".join(parts))
 
-def _config_encode(config, project, output):
+def _config_encode(config, project, targets, output):
     """
     Encodes the fixture for passing it to the builder. Has to follow the schema
     defined in builder.proto.
@@ -68,6 +68,7 @@ def _config_encode(config, project, output):
             for mod in config.modules
         ],
         aspects = config.aspects,
+        targets = targets,
     ))
 
 def _test_fixture_impl(ctx):
@@ -93,7 +94,7 @@ def _test_fixture_impl(ctx):
             ],
             outputs = [output],
             executable = ctx.executable._builder,
-            arguments = [_config_encode(config, ctx.file.project, output)],
+            arguments = [_config_encode(config, ctx.file.project, ctx.attr.targets, output)],
             mnemonic = "FixtureBuilder",
             progress_message = "Building test fixture for %{label} " + _config_name(config),
             use_default_shell_env = True,
@@ -113,6 +114,10 @@ _test_fixture = rule(
             providers = [[TestConfig], [TestMatrix]],
             mandatory = True,
         ),
+        "targets": attr.string_list(
+            mandatory = True,
+            doc = "list of targets to build for the fixture; do not us patterns",
+        ),
         "_builder": attr.label(
             allow_files = True,
             cfg = "exec",
@@ -123,7 +128,7 @@ _test_fixture = rule(
     implementation = _test_fixture_impl,
 )
 
-def test_fixture(name, srcs, configs, strip_prefix = "", **kwargs):
+def test_fixture(name, srcs, configs, targets, strip_prefix = "", **kwargs):
     """
     Creates a test fixture by running the aspect on the source project for all
     defined configurations. The fixture can be passed to a test runner which
@@ -151,5 +156,6 @@ def test_fixture(name, srcs, configs, strip_prefix = "", **kwargs):
         project = name + "_tar",
         configs = configs,
         testonly = 1,
+        targets = targets,
         **kwargs
     )

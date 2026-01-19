@@ -47,7 +47,7 @@ fun main(args: Array<String>) {
     bazelExecutable = Path.of(input.bazel.executable).toAbsolutePath().toString(),
     aspects = input.aspectsList,
     outputGroups = OUTPUT_GROUPS,
-    targets = listOf("//..."),
+    targets = input.targetsList,
   )
   require(files.isNotEmpty()) { "no files were generated" }
 

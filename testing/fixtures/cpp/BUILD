@@ -47,6 +47,7 @@ test_fixture(
         ":matrix",
     ],
     strip_prefix = "simple",
+    targets = ["//:main"],
     visibility = ["//testing/tests:__subpackages__"],
 )
 
@@ -55,6 +56,10 @@ test_fixture(
     srcs = glob(["transition/**"]),
     configs = [":bazel9"],
     strip_prefix = "transition",
+    targets = [
+        "//:main",
+        "//:foo_bar",
+    ],
     visibility = ["//testing/tests:__subpackages__"],
 )
 
@@ -63,6 +68,7 @@ test_fixture(
     srcs = glob(["builtin/**"]),
     configs = [":matrix"],
     strip_prefix = "builtin",
+    targets = ["//:main"],
     visibility = ["//testing/tests:__subpackages__"],
 )
 
@@ -71,5 +77,6 @@ test_fixture(
     srcs = glob(["tool/**"]),
     configs = [":bazel9"],
     strip_prefix = "tool",
+    targets = ["//:tool"],
     visibility = ["//testing/tests:__subpackages__"],
 )

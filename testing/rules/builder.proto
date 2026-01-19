@@ -36,6 +36,7 @@ message BuilderInput {
 
   repeated BazelModule modules = 4;
   repeated string aspects = 5;
+  repeated string targets = 6;
 }
 
 message BuilderOutput {
