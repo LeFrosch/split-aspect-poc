@@ -37,7 +37,7 @@ registry.install(
     bazel = [
         "7.7.0",
         "8.4.2",
-        "9.0.0rc5",
+        "9.0.0rc6",
     ],
     rules_cc = [
         "0.1.1",
