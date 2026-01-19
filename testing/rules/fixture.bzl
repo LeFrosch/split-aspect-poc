@@ -134,6 +134,8 @@ def test_fixture(name, srcs, configs, targets, strip_prefix = "", **kwargs):
     defined configurations. The fixture can be passed to a test runner which
     executes all test for every generated fixture.
     """
+    strip_prefix = strip_prefix or name
+
     _test_project(
         name = name + "_project",
         srcs = srcs,

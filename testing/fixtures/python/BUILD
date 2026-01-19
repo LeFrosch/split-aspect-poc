@@ -28,7 +28,6 @@ test_fixture(
     name = "simple",
     srcs = glob(["simple/**"]),
     configs = [":matrix"],
-    strip_prefix = "simple",
     targets = [
         "//:main",
         "//:test",
@@ -40,7 +39,6 @@ test_fixture(
     name = "args",
     srcs = glob(["args/**"]),
     configs = [":matrix"],
-    strip_prefix = "args",
     targets = ["//:all"],
     visibility = ["//testing/tests:__subpackages__"],
 )
