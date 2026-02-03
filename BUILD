@@ -36,6 +36,18 @@ pkg_tar(
     visibility = ["//visibility:public"],
 )
 
+pkg_zip(
+    name = "archive_test",
+    srcs = [
+        ":module_bcr",
+        "//common",
+        "//config",
+        "//intellij",
+        "//modules",
+    ],
+    visibility = ["//testing:__subpackages__"],
+)
+
 local_registry(
     name = "local_deploy",
     archive = ":archive_bcr",

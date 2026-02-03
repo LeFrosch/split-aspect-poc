@@ -12,6 +12,8 @@ import java.nio.file.StandardOpenOption
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
+import kotlin.io.path.ExperimentalPathApi
+import kotlin.io.path.deleteRecursively
 import kotlin.io.path.toPath
 
 private val MAPPER = ObjectMapper()
@@ -26,11 +28,11 @@ inline fun <reified T : Message> action(args: Array<String>, crossinline block: 
 
 class ActionContext {
 
-  val projectDirectory: Path by lazy { tempDirectory("project") }
+  private val projectDirectory: Path by lazy { tempDirectory("project") }
 
-  val repoCacheDirectory: Path by lazy { tempDirectory("repo_cache") }
+  private val repoCacheDirectory: Path by lazy { tempDirectory("repo_cache") }
 
-  val outputRootDirectory: Path by lazy { tempDirectory("output_root") }
+  private val outputRootDirectory: Path by lazy { tempDirectory("output_root") }
 
   @Throws(IOException::class)
   fun tempDirectory(name: String): Path {
@@ -43,41 +45,43 @@ class ActionContext {
   }
 
   @Throws(IOException::class)
-  fun deployProject(project: String) = unzip(Path.of(project), projectDirectory)
+  fun deployProject(project: String) {
+    unzip(Path.of(project), projectDirectory)
+  }
 
   @Throws(IOException::class)
-  fun deployRepoCache(archive: String) = unzip(Path.of(archive), repoCacheDirectory)
+  fun deployRepoCache(archive: String) {
+    val addressable = repoCacheDirectory.resolve("content_addressable")
+    Files.createDirectories(addressable)
+    unzip(Path.of(archive), addressable)
+  }
 
   @Throws(IOException::class)
-  fun archiveRepoCache(archive: String) = zip(repoCacheDirectory, Path.of(archive))
+  fun archiveRepoCache(archive: String) {
+    val addressable = repoCacheDirectory.resolve("content_addressable")
+    zip(addressable, Path.of(archive))
+  }
 
   @Throws(IOException::class)
-  fun writeModule(block: BufferedWriter.() -> Unit) =
-    Files.newOutputStream(
-      projectDirectory.resolve("MODULE.bazel"),
-      StandardOpenOption.CREATE,
-      StandardOpenOption.TRUNCATE_EXISTING,
-    )
-      .bufferedWriter()
-      .use(block)
+  fun writeModule(block: BufferedWriter.() -> Unit) = Files.newOutputStream(
+    projectDirectory.resolve("MODULE.bazel"),
+    StandardOpenOption.CREATE,
+    StandardOpenOption.TRUNCATE_EXISTING,
+  ).bufferedWriter().use(block)
 
+  @Throws(IOException::class)
   fun bazelBuild(
     bazel: ActionLibProto.BazelBinary,
     targets: List<String>,
     aspects: List<String> = emptyList(),
     outputGroups: List<String> = emptyList(),
     flags: List<String> = emptyList(),
-    allowFetch: Boolean = false,
   ): List<Path> {
     val cmd = mutableListOf<String>()
     cmd.add(Path.of(bazel.executable).toAbsolutePath().toString())
     cmd.add("--output_user_root=$outputRootDirectory")
     cmd.add("build")
     cmd.add("--repository_cache=$repoCacheDirectory")
-
-    if (!allowFetch) {
-      cmd.add("--nofetch")
-    }
 
     val bepFile = tempFile("build.bep.json")
     cmd.add("--build_event_json_file=$bepFile")
@@ -109,13 +113,18 @@ class ActionContext {
   }
 }
 
+private val EXECUTABLE_MARKER = byteArrayOf(0x45, 0x58)
+
 @Throws(IOException::class)
-private fun zip(srcDirectory: Path, outFile: Path) {
+fun zip(srcDirectory: Path, outFile: Path) {
   ZipOutputStream(Files.newOutputStream(outFile, StandardOpenOption.CREATE)).use { out ->
     Files.walk(srcDirectory).use { stream ->
       stream.filter(Files::isRegularFile).forEach { file ->
-        val relativePath = srcDirectory.relativize(file).toString().replace('\\', '/')
-        out.putNextEntry(ZipEntry(relativePath))
+        val entry = ZipEntry(srcDirectory.relativize(file).toString().replace('\\', '/'))
+        if (Files.isExecutable(file)) {
+          entry.extra = EXECUTABLE_MARKER
+        }
+        out.putNextEntry(entry)
         Files.newInputStream(file).use { it.transferTo(out) }
       }
     }
@@ -123,13 +132,17 @@ private fun zip(srcDirectory: Path, outFile: Path) {
 }
 
 @Throws(IOException::class)
-private fun unzip(srcFile: Path, outDirectory: Path) {
+fun unzip(srcFile: Path, outDirectory: Path) {
   ZipInputStream(Files.newInputStream(srcFile)).use { src ->
     for (entry in generateSequence { src.nextEntry }) {
-      if (!entry.isDirectory) {
-        val path = outDirectory.resolve(entry.name)
-        Files.createDirectories(path.parent)
-        Files.newOutputStream(path, StandardOpenOption.CREATE).use(src::transferTo)
+      if (entry.isDirectory) continue
+
+      val path = outDirectory.resolve(entry.name)
+      Files.createDirectories(path.parent)
+      Files.newOutputStream(path, StandardOpenOption.CREATE).use(src::transferTo)
+
+      if (entry.extra.contentEquals(EXECUTABLE_MARKER)) {
+        path.toFile().setExecutable(true)
       }
     }
   }

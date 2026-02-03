@@ -33,3 +33,10 @@ kt_jvm_library(
         "@protobuf//:protobuf_java",
     ],
 )
+
+kt_jvm_library(
+    name = "test_utils_lib",
+    srcs = ["test_utils.kt"],
+    visibility = ["//testing/tests:__subpackages__"],
+    deps = ["@maven//:junit_junit"],
+)

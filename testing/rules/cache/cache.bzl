@@ -30,8 +30,8 @@ repo_cache = rule(
             mandatory = True,
         ),
         "config": attr.label(
-            mandatory = True,
             providers = [TestMatrix],
+            mandatory = True,
         ),
         "_builder": attr.label(
             cfg = "exec",

@@ -13,7 +13,7 @@ fun main(args: Array<String>) = action<BuilderInput>(args) { input ->
       }
     }
 
-    bazelBuild(config.bazel, listOf("//..."), allowFetch = true)
+    bazelBuild(config.bazel, listOf("//..."), flags = listOf("--nobuild"))
   }
 
   archiveRepoCache(input.outputArchive)

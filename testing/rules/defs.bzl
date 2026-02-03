@@ -1,11 +1,38 @@
 load("@rules_java//java:defs.bzl", "java_test")
 load("@rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library")
-load(":config.bzl", _test_config = "test_config", _test_matrix = "test_matrix")
-load(":fixture.bzl", _test_fixture = "test_fixture")
+load("//testing/rules/cache:cache.bzl", _repo_cache = "repo_cache")
+load("//testing/rules/fixture:fixture.bzl", _test_fixture = "test_fixture")
+load("//testing/rules/lib:config.bzl", _test_matrix = "test_matrix")
+load("//testing/rules/lib:project.bzl", _project_archive = "project_archive")
 
-test_config = _test_config
 test_matrix = _test_matrix
-test_fixture = _test_fixture
+
+def test_fixture(name, srcs, config, strip_prefix = "", export_cache = None, import_cache = None, **kwargs):
+    _project_archive(
+        name = name + "_project",
+        srcs = srcs,
+        visibility = ["//visibility:private"],
+        strip_prefix = strip_prefix or name,
+        testonly = 1,
+    )
+
+    if export_cache:
+        _repo_cache(
+            name = export_cache,
+            config = config,
+            project = name + "_project",
+            visibility = ["//visibility:private"],
+            testonly = 1,
+        )
+
+    _test_fixture(
+        name = name,
+        config = config,
+        project = name + "_project",
+        repo_cache = export_cache or import_cache,
+        testonly = 1,
+        **kwargs
+    )
 
 def _derive_test_class(test):
     """
@@ -33,8 +60,8 @@ def test_runner(test, fixture, deps = None, env = None):
         name = name + "_lib",
         srcs = [test],
         deps = (deps or []) + [
-            "//testing/rules:fixture",
-            "//testing/rules:utils",
+            "//testing/rules/fixture:fixture_lib",
+            "//testing/rules/lib:test_utils_lib",
             "//private/proto:ide_info_java_proto",
             "@maven//:junit_junit",
             "@maven//:com_google_truth_truth",

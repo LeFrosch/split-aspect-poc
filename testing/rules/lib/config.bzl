@@ -1,4 +1,4 @@
-load("//private:bazel_rules.bzl", "BazelBinary", "BazelModule")
+load("//private:bazel_rules.bzl", "BazelBinary")
 
 TestConfig = provider(
     doc = "Single fixture configuration (Bazel, modules, aspects).",
@@ -17,20 +17,20 @@ TestMatrix = provider(
     },
 )
 
-def serialize_test_matrix(matrix):
-    """Creates the proto encoding of a test matrix."""
+def serialize_test_config(config):
+    """Returns a struct that can be encoded into the proto represenation of a test config."""
+    return struct(
+        bazel = struct(version = config.bazel.version, executable = config.bazel.executable.path),
+        modules = [
+            struct(name = name, version = version)
+            for (name, version) in config.modules.items()
+        ],
+        aspects = config.aspects,
+    )
 
-    return [
-        struct(
-            bazel = struct(version = config.bazel.version, executable = config.bazel.executable.path),
-            modules = [
-                struct(name = name, version = version)
-                for (name, version) in config.modules.items()
-            ],
-            aspects = config.aspects,
-        )
-        for config in matrix.configs
-    ]
+def serialize_test_matrix(matrix):
+    """Returns a list of structs for each config in the matrix."""
+    return [serialize_test_config(config) for config in matrix.configs]
 
 def _test_matrix_impl(ctx):
     bazel_binaries = [it[BazelBinary] for it in ctx.attr.bazel]
