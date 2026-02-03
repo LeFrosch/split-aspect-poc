@@ -29,6 +29,7 @@ kt_jvm_library(
     deps = [
         ":builder_java_proto",
         "//testing/rules/lib:action_lib",
+        "//testing/rules/lib:zip_lib",
     ],
 )
 

@@ -21,6 +21,11 @@ java_proto_library(
 )
 
 kt_jvm_library(
+    name = "zip_lib",
+    srcs = ["zip.kt"],
+)
+
+kt_jvm_library(
     name = "action_lib",
     srcs = ["action.kt"],
     exports = [
@@ -29,6 +34,7 @@ kt_jvm_library(
     ],
     deps = [
         ":action_lib_java_proto",
+        ":zip_lib",
         "@maven//:com_fasterxml_jackson_core_jackson_databind",
         "@protobuf//:protobuf_java",
     ],

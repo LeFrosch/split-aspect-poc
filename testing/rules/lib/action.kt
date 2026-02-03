@@ -9,11 +9,6 @@ import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
-import java.util.zip.ZipEntry
-import java.util.zip.ZipInputStream
-import java.util.zip.ZipOutputStream
-import kotlin.io.path.ExperimentalPathApi
-import kotlin.io.path.deleteRecursively
 import kotlin.io.path.toPath
 
 private val MAPPER = ObjectMapper()
@@ -109,41 +104,6 @@ class ActionContext {
 
     return Files.newBufferedReader(bepFile).use { reader ->
       reader.lineSequence().flatMap(::parseBepEvent).distinct().toList()
-    }
-  }
-}
-
-private val EXECUTABLE_MARKER = byteArrayOf(0x45, 0x58)
-
-@Throws(IOException::class)
-fun zip(srcDirectory: Path, outFile: Path) {
-  ZipOutputStream(Files.newOutputStream(outFile, StandardOpenOption.CREATE)).use { out ->
-    Files.walk(srcDirectory).use { stream ->
-      stream.filter(Files::isRegularFile).forEach { file ->
-        val entry = ZipEntry(srcDirectory.relativize(file).toString().replace('\\', '/'))
-        if (Files.isExecutable(file)) {
-          entry.extra = EXECUTABLE_MARKER
-        }
-        out.putNextEntry(entry)
-        Files.newInputStream(file).use { it.transferTo(out) }
-      }
-    }
-  }
-}
-
-@Throws(IOException::class)
-fun unzip(srcFile: Path, outDirectory: Path) {
-  ZipInputStream(Files.newInputStream(srcFile)).use { src ->
-    for (entry in generateSequence { src.nextEntry }) {
-      if (entry.isDirectory) continue
-
-      val path = outDirectory.resolve(entry.name)
-      Files.createDirectories(path.parent)
-      Files.newOutputStream(path, StandardOpenOption.CREATE).use(src::transferTo)
-
-      if (entry.extra.contentEquals(EXECUTABLE_MARKER)) {
-        path.toFile().setExecutable(true)
-      }
     }
   }
 }
