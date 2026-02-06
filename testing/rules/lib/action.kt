@@ -3,6 +3,7 @@ package com.intellij.aspect.testing.rules.lib
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.protobuf.Message
 import com.google.protobuf.TextFormat
+import com.intellij.aspect.testing.rules.lib.ActionLibProto.BazelModule
 import java.io.BufferedWriter
 import java.io.IOException
 import java.net.URI
@@ -58,11 +59,22 @@ class ActionContext {
   }
 
   @Throws(IOException::class)
-  fun writeModule(block: BufferedWriter.() -> Unit) = Files.newOutputStream(
-    projectDirectory.resolve("MODULE.bazel"),
-    StandardOpenOption.CREATE,
-    StandardOpenOption.TRUNCATE_EXISTING,
-  ).bufferedWriter().use(block)
+  fun writeModule(modules: List<BazelModule>, aspect: Path) {
+    val writer = Files.newOutputStream(
+      projectDirectory.resolve("MODULE.bazel"),
+      StandardOpenOption.CREATE,
+      StandardOpenOption.TRUNCATE_EXISTING,
+    ).bufferedWriter()
+
+    writer.use {
+      for (module in modules) {
+        it.appendLine("bazel_dep(name = '${module.name}', version = '${module.version}')")
+      }
+
+      it.appendLine("bazel_dep(name = 'intellij_aspect')")
+      it.appendLine("local_path_override(module_name = 'intellij_aspect', path = '$aspect')")
+    }
+  }
 
   @Throws(IOException::class)
   fun bazelBuild(

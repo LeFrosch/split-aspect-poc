@@ -35,21 +35,14 @@ fun main(args: Array<String>) = action<BuilderInput>(args) { input ->
   deployRepoCache(input.cacheArchive)
 
   val aspectPath = deployAspect(input.aspectArchive)
-
-  writeModule {
-    for (module in input.config.modulesList) {
-      appendLine("bazel_dep(name = '${module.name}', version = '${module.version}')")
-    }
-
-    appendLine("bazel_dep(name = 'intellij_aspect')")
-    appendLine("local_path_override(module_name = 'intellij_aspect', path = '$aspectPath')")
-  }
+  writeModule(input.config.modulesList, aspectPath)
 
   val files = bazelBuild(
     bazel = input.config.bazel,
     targets = input.targetsList,
     aspects = input.config.aspectsList,
     outputGroups = OUTPUT_GROUPS,
+    flags = listOf("--repository_disable_download")
   )
   require(files.isNotEmpty()) { "no files were generated" }
 
