@@ -20,23 +20,22 @@ import com.google.devtools.intellij.ideinfo.IdeInfo.TargetKey
 import com.google.protobuf.Descriptors
 import com.google.protobuf.Message
 
+enum class DifferenceType {
+  MISSING_ELEMENT,
+  ADDITIONAL_ELEMENT,
+  VALUE_MISMATCH
+}
+
 /**
  * Represents a difference between two protobuf messages.
- * Nodes recursively build field paths like "parent/child/field".
+ * Path is built in reverse as we return from recursion.
  */
-sealed interface Difference {
-  val path: String
-  val msg: String
+data class Difference(
+  val path: String,
+  val type: DifferenceType,
+  val value: Any?
+)
 
-  class Leaf(override val msg: String) : Difference {
-    override val path: String get() = ""
-  }
-
-  class Node(private val name: String, private val next: Difference) : Difference {
-    override val path: String get() = name + "/" + next.path
-    override val msg: String get() = next.msg
-  }
-}
 
 /**
  * Uses reflection to access the static getDescriptor() method for generic
@@ -67,13 +66,13 @@ private fun compareField(legacy: Message, current: Message, name: String): Diffe
 private fun compareList(legacy: List<*>, current: List<*>): Difference? {
   for (legacyItem in legacy.filterNotNull()) {
     if (current.filterNotNull().none { compare(legacyItem, it) == null }) {
-      return Difference.Leaf("missing $legacyItem")
+      return Difference("", DifferenceType.MISSING_ELEMENT, legacyItem)
     }
   }
 
   for (currentItem in current.filterNotNull()) {
     if (legacy.filterNotNull().none { compare(it, currentItem) == null }) {
-      return Difference.Leaf("superfluous $currentItem")
+      return Difference("", DifferenceType.ADDITIONAL_ELEMENT, currentItem)
     }
   }
 
@@ -85,11 +84,19 @@ private fun compareList(legacy: List<*>, current: List<*>): Difference? {
  * direct comparison otherwise.
  */
 private fun compareField(legacy: Message, current: Message, descriptor: Descriptors.FieldDescriptor): Difference? {
-  return if (!descriptor.isRepeated) {
+  val diff = if (!descriptor.isRepeated) {
     compare(legacy.getField(descriptor), current.getField(descriptor))
   } else {
     compareList(legacy.getField(descriptor) as List<*>, current.getField(descriptor) as List<*>)
-  }?.let { Difference.Node(descriptor.name, it) }
+  }
+
+  return diff?.let {
+    if (it.path.isEmpty()) {
+      Difference(descriptor.name, it.type, it.value)
+    } else {
+      Difference("${descriptor.name}/${it.path}", it.type, it.value)
+    }
+  }
 }
 
 private fun compareMessage(legacy: Message, current: Message): Difference? {
@@ -99,7 +106,7 @@ private fun compareMessage(legacy: Message, current: Message): Difference? {
 }
 
 private fun compareDefault(legacy: Any, current: Any): Difference? {
-  return if (legacy == current) null else Difference.Leaf("'$legacy' != '$current'")
+  return if (legacy == current) null else Difference("", DifferenceType.VALUE_MISMATCH, current)
 }
 
 data class Comparison(
