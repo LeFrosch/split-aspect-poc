@@ -3,6 +3,7 @@ package com.intellij.aspect.testing.tests.lib
 import com.google.common.truth.Truth.assertThat
 import com.google.devtools.build.runfiles.Runfiles
 import com.intellij.aspect.private.lib.AspectConfig
+import com.intellij.aspect.private.lib.TransformRelativePaths
 import com.intellij.aspect.private.lib.deployAspectZip
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -28,6 +29,7 @@ class DeployTest {
       relativeDestination = relativeDestination,
       archiveZip = Path.of(RUNFILES.unmapped().rlocation(archive)),
       config = AspectConfig(bazelVersion = "8.5.0"),
+      transformers = listOf(TransformRelativePaths(relativeDestination)),
     )
 
     return Path.of(tempdir).resolve(relativeDestination)

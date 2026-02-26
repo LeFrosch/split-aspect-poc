@@ -16,6 +16,7 @@
 package com.intellij.aspect.tools.differ
 
 import com.intellij.aspect.private.lib.AspectConfig
+import com.intellij.aspect.private.lib.TransformRelativePaths
 import com.intellij.aspect.private.lib.deployAspectZip
 import com.intellij.aspect.tools.RunfilesRepo
 import com.intellij.aspect.tools.lib.executeBuild
@@ -102,10 +103,19 @@ class TemporaryWorkspace(private val workspace: Path, private val bazelExecutabl
   @Throws(IOException::class)
   fun deployCurrentAspect() {
     val version = executeCommand(bazelExecutable, "--version").removePrefix("bazel").trim()
-    val config = AspectConfig(bazelVersion = version)
+    val config = AspectConfig(
+      bazelVersion = version,
+      repoMapping = emptyMap(),
+      useBuiltin = false,
+    )
 
     val archive = RunfilesRepo.rlocation(CURRENT_ASPECT.runfilesLocation)
-    deployAspectZip(workspace, CURRENT_ASPECT.deployDirectory, archive, config)
+    deployAspectZip(
+      workspace,
+      CURRENT_ASPECT.deployDirectory,
+      archive,
+      config,
+    )
   }
 
   @Throws(IOException::class)
@@ -141,4 +151,3 @@ class TemporaryWorkspace(private val workspace: Path, private val bazelExecutabl
     })
   }
 }
-
