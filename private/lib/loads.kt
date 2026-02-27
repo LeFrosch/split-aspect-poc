@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.intellij.aspect.private.lib
+package com.intellij.aspect.lib
 
 import java.io.IOException
 import java.io.InputStream
@@ -23,7 +23,14 @@ private val LOAD_STATEMENT_RX = Regex("""^load\("([^"]+)",([^)]+)\)$""")
 private val REPO_NAME_RX = Regex("""^(@[^/]+)//(.+)$""")
 
 @Throws(IOException::class)
-fun transform(input: InputStream, transformers: List<Transformer>): String {
+fun parseLoads(input: InputStream): List<LoadStatement> {
+  return input.reader().useLines { lines ->
+    lines.mapNotNull(::loadStatementParse).toList()
+  }
+}
+
+@Throws(IOException::class)
+fun transformFile(input: InputStream, transformers: List<Transformer>): String {
   val loads = mutableListOf<LoadStatement>()
   val lines = mutableListOf<String>()
 

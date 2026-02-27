@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.intellij.aspect.private.lib
+package com.intellij.aspect.lib
 
 import java.nio.file.Path
 
-private val ALLOWED_BUILTIN_LOADS = listOf("bazel_tools")
+private val ALLOWED_BUILTIN_LOADS = listOf("@bazel_tools")
 
 private const val CC_TOOLCHAIN_FIELD = "CC_TOOLCHAIN_TYPE"
 private const val CC_TOOLCHAIN_LABEL = "@bazel_tools//tools/cpp:toolchain_type"
@@ -76,7 +76,7 @@ object TransformCcToolchainType : Transformer {
 
   override fun apply(loads: MutableList<LoadStatement>, lines: MutableList<String>) {
     val needsToolchainType = loads.removeAll { stmt ->
-      stmt.repository is Repository.External && stmt.repository.name == "rules_cc" && stmt.arguments.contains(
+      stmt.repository is Repository.External && stmt.repository.name == "@rules_cc" && stmt.arguments.contains(
         CC_TOOLCHAIN_FIELD
       )
     }

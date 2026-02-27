@@ -15,9 +15,8 @@
  */
 package com.intellij.aspect.tools.differ
 
-import com.intellij.aspect.private.lib.AspectConfig
-import com.intellij.aspect.private.lib.TransformRelativePaths
-import com.intellij.aspect.private.lib.deployAspectZip
+import com.intellij.aspect.lib.AspectConfig
+import com.intellij.aspect.lib.deployAspectZip
 import com.intellij.aspect.tools.RunfilesRepo
 import com.intellij.aspect.tools.lib.executeBuild
 import com.intellij.aspect.tools.lib.executeCommand

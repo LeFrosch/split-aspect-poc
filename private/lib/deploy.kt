@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.intellij.aspect.private.lib
+package com.intellij.aspect.lib
 
 import java.io.IOException
 import java.nio.file.Files
@@ -66,8 +66,8 @@ fun deployAspectZip(
   )
 
   if (config.useBuiltin) {
-    transformers.add(TransformBuiltinRules)
     transformers.add(TransformCcToolchainType)
+    transformers.add(TransformBuiltinRules)
   }
 
   extractZipArchive(destination, archiveZip, transformers)
@@ -91,7 +91,7 @@ private fun extractZipArchive(
       } else {
         Files.writeString(
           target,
-          transform(zip.getInputStream(entry), transformers),
+          transformFile(zip.getInputStream(entry), transformers),
           Charsets.UTF_8,
           StandardOpenOption.CREATE,
           StandardOpenOption.TRUNCATE_EXISTING,
