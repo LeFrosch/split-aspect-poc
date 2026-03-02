@@ -14,7 +14,7 @@ _MODULES = {
     ],
 }
 
-def test_matrix_cc(name, bazel, builtin = False, **kwargs):
+def test_matrix_cc(name, bazel, builtin = False):
     test_matrix(
         name = name + "_bcr",
         aspects = _ASPECTS,
